@@ -1,13 +1,14 @@
 Save auth record to aleph
-  -> x-server
+ -> x-server
  -> https://github.com/NatLibFi/melinda-api/blob/master/AlephAPI.pm#L629
  -> https://github.com/NatLibFi/melinda-api/blob/master/AlephAPI.pm#L861
 
 Save bib record to aleph 
   -> melinda-api
 
+
 libtest:
-  auktoriteetti (siellä on molemmantyylisiä) FIN19
+  auktoriteettibase (siellä on molemmantyylisiä) FIN19
 
 
 
