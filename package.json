@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "oracledb": "^1.13.1"
+    "es6-promisify": "^5.0.0",
+    "isomorphic-fetch": "^2.2.1",
+    "oracledb": "^1.13.1",
+    "xml2js": "^0.4.17"
   }
 }

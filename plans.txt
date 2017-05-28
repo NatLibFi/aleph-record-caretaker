@@ -1,7 +1,3 @@
-Save auth record to aleph
- -> x-server
- -> https://github.com/NatLibFi/melinda-api/blob/master/AlephAPI.pm#L629
- -> https://github.com/NatLibFi/melinda-api/blob/master/AlephAPI.pm#L861
 
 Save bib record to aleph 
   -> melinda-api

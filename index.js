@@ -5,6 +5,9 @@ const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
 
 const AlephChangeListener = require('../aleph-change-listener/aleph-change-listener');
+const AlephFindService = require('./aleph-find-service');
+const AlephRecordService = require('../sync-tool/aleph-record-service');
+
 const utils = require('./utils');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
@@ -26,7 +29,7 @@ async function start() {
   }
 
   const alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
-
+  
   alephChangeListener.start();
   
 }
