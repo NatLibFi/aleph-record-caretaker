@@ -3,6 +3,7 @@ const promisify = require('es6-promisify');
 const fetch = require('isomorphic-fetch');
 const parseString = require('xml2js').parseString;
 const parseXML = promisify(parseString);
+const querystring = require('querystring');
 
 function create(X_SERVER) {
     
@@ -14,7 +15,13 @@ function create(X_SERVER) {
 
   async function queryIndex(base, index, query) {
 
-    const requestUrl = `${X_SERVER}?op=find&request=${index}%3D${query}&base=${base}`;
+    const queryParameters = querystring.stringify({
+      'op': 'find',
+      'request': `${index}=${query}`,
+      'base': base
+    });
+    
+    const requestUrl = `${X_SERVER}?${queryParameters}`;
     const response = await fetch(requestUrl);
     if (response.status !== 200) {
       throw new Error(response.status);
@@ -41,7 +48,13 @@ function create(X_SERVER) {
 
   async function fetchItems(resultSet) {
 
-    const requestUrl = `${X_SERVER}?op=present&set_number=${resultSet.setNumber}&set_entry=1-${resultSet.noEntries}`;
+    const queryParameters = querystring.stringify({
+      'op': 'present',
+      'set_number': resultSet.setNumber,
+      'set_entry': `1-${resultSet.noEntries}`
+    });
+
+    const requestUrl = `${X_SERVER}?${queryParameters}`;
     const response = await fetch(requestUrl);
     if (response.status !== 200) {
       throw new Error(response.status);
