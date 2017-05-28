@@ -18,3 +18,11 @@ check the $0 subfield
 We need to validate field with $0
 
 
+
+
+start listner
+update auth record
+watch bib records being updated
+
+update bib record
+watch bib record being reset

@@ -6,3 +6,4 @@ run.sh
 .auth-sync-service-iterators
 .stash_*
 .aleph-changelistener-cursors*
+.*-cursors.json

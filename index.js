@@ -12,10 +12,14 @@ const utils = require('./utils');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
+const MELINDA_Z106_BASES = ['FIN01', 'FIN10', 'FIN11'];
+const LIBTEST_Z106_BASES = ['FIN01', 'FIN19'];
+
 const options = {
-  Z106Bases: ['FIN01', 'FIN10', 'FIN11'],
+  Z106Bases: dbConfig.connectString === 'melinda' ? MELINDA_Z106_BASES : LIBTEST_Z106_BASES,
+  Z115Base: dbConfig.connectString === 'melinda' ? 'FIN00' : 'USR00',
   pollIntervalMs: '5000',
-  cursorSaveFile: '.aleph-changelistener-cursors.json'
+  cursorSaveFile: dbConfig.connectString === 'melinda' ? '.aleph-changelistener-cursors.json' : '.libtest-cursors.json'
 };
 
 start().catch(error => { console.error(error); });
@@ -36,4 +40,11 @@ async function start() {
 
 function onChange(changes) {
   console.log(changes);
+
+  // auth or bib?
+
+  // for auth: load bibs, set name
+  // linked auths?
+
+  // for bib: load auth, get name from it and set it to bib.
 }
