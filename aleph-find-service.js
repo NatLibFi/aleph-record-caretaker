@@ -9,7 +9,7 @@ function create(X_SERVER) {
   async function findLinkedBibRecords(authorityRecordId) {
     const normalizedRecordId = _.padStart(authorityRecordId, 9, '0');
     const result = await queryIndex('fin01', 'ANAID', normalizedRecordId);
-    return result.map(res => res.recordId);
+    return result.recordIds;
   }
 
   async function queryIndex(base, index, query) {
@@ -51,12 +51,11 @@ function create(X_SERVER) {
 
     const jsonBody = await parseXML(body);
 
-    //TODO handles only first record.
-    const record = _.get(jsonBody, 'present.record[0]');
+    const records = _.get(jsonBody, 'present.record');
     const sessionId = _.get(jsonBody, 'present.session-id[0]');
-    const recordId = record.doc_number[0];
+    const recordIds = records.map(record => _.get(record, 'doc_number[0]'));
 
-    return [{recordId, sessionId}];
+    return { recordIds, sessionId };
   }
 
   return {
