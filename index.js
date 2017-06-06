@@ -3,10 +3,13 @@
 const dbConfig = require('./dbconfig.js');
 const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
+const debug = require('debug')('auth-sync-service');
 
 const AlephChangeListener = require('../aleph-change-listener/aleph-change-listener');
 const AlephFindService = require('./aleph-find-service');
 const AlephRecordService = require('../sync-tool/aleph-record-service');
+const BibRecordSyncService = require('./bib-record-sync');
+const AuthRecordSyncService = require('./auth-record-sync');
 
 const utils = require('./utils');
 
@@ -21,6 +24,15 @@ const options = {
   pollIntervalMs: '5000',
   cursorSaveFile: dbConfig.connectString === 'melinda' ? '.aleph-changelistener-cursors.json' : '.libtest-cursors.json'
 };
+
+const XServerUrl = dbConfig.connectString === 'melinda' ? 'http://melinda.kansalliskirjasto.fi/X' : 'http://libtest.csc.fi:8992/X';
+
+const alephRecordService = AlephRecordService.createAlephRecordService(XServerUrl);
+const alephFindService = AlephFindService.create(XServerUrl);
+
+const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService);
+const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService);
+
 
 start().catch(error => { console.error(error); });
 
@@ -39,12 +51,14 @@ async function start() {
 }
 
 function onChange(changes) {
-  console.log(changes);
+  
+  return utils.serial(changes.map((change) => () => {
 
-  // auth or bib?
-
-  // for auth: load bibs, set name
-  // linked auths?
-
-  // for bib: load auth, get name from it and set it to bib.
+    switch(change.library) {
+      case 'FIN01': return bibRecordSyncService.handleBibChange(change);
+      //case 'FIN10': return AuthRecordSync.handleAuthChange(change);
+      case 'FIN11': return authRecordSyncService.handleAuthChange(change);
+      case 'FIN19': return authRecordSyncService.handleAuthChange(change);
+    }
+  }));
 }
