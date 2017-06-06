@@ -39,6 +39,8 @@ function create(alephRecordService, alephFindService) {
       debug('The record was changed.');
       debug('Saving changed bib record.');
       await alephRecordService.saveRecord(change.library, change.recordId, fixedRecord);
+    } else {
+      debug('Record was not changed.');
     }
   }
 
