@@ -4,7 +4,7 @@ const _ = require('lodash');
 const fixBibRecordField = require('../sync-tool/fix-bib-record');
 const utils = require('./utils');
 
-function create(alephRecordService, alephFindService) {
+function create(alephRecordService, alephFindService, baseMap) {
 
   async function handleBibChange(change) {
     debug('Handling changed bib record', change);
@@ -20,17 +20,38 @@ function create(alephRecordService, alephFindService) {
     const fixedRecord = new MarcRecord(record);
 
     fixedRecord.fields = await utils.serial(record.fields.map(field => async () => {
-      if (field.tag !== '100') return field;
-      
-      const authorityRecordLinkSubfield = _.head(field.subfields.filter(sub => sub.code === '0'));
-
-      if (authorityRecordLinkSubfield) {
-        const { base, recordId } = parseAuthorityRecordLink(authorityRecordLinkSubfield.value);
-
-        const authorityRecord = await alephRecordService.loadRecord(base, recordId);
-
-        return fixBibRecordField(field, authorityRecord);
+      if (!_.includes(['100', '600', '700'], field.tag)) {
+        return field;
       }
+      // TODO: handlers for there:
+      // 110, 610, 710
+      // 111, 611, 711
+      
+      // mahdollisesti myös 800, 810, 811
+      
+      const authorityRecordLinkSubfields = field.subfields.filter(sub => sub.code === '0');
+      
+      if (authorityRecordLinkSubfields.length > 0) {
+
+        const links = authorityRecordLinkSubfields.map(field => parseAuthorityRecordLink(field.value));
+        
+        const supportedLinks = links.filter(link => baseMap[link.base] !== undefined);
+        if (supportedLinks.length > 1) {
+          const offendingBases = supportedLinks.map(link => link.base).join(', ');
+          throw new Error(`Record contains multiple links to supported bases (${offendingBases}). Unable to determine which one to use for updating the authorized portion.`);
+        }
+        if (supportedLinks.length === 1) {
+          const { base, recordId } = supportedLinks[0];
+
+          const authorityRecord = await alephRecordService.loadRecord(baseMap[base], recordId);
+
+          // TODO: fixBibRecordField handles only authorityRecords with field 100. It must support 110, 111. and in the future also others.
+          return fixBibRecordField(field, authorityRecord);
+        } else {
+          return field;
+        }
+      }
+
       return field;
 
     }));
