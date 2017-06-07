@@ -7,11 +7,26 @@ const querystring = require('querystring');
 
 function create(X_SERVER) {
     
-  async function findLinkedBibRecords(authorityRecordId) {
+  async function findLinkedToAgentBibRecords(authorityRecordId) {
+    return findLinkedAgentRecords('fin01', authorityRecordId);
+  }
+  
+  async function findLinkedToSubjectBibRecords(authorityRecordId) {
+    return findLinkedSubjectRecords('fin01', authorityRecordId);
+  }
+
+  async function findLinkedAgentRecords(base, authorityRecordId) {
     const normalizedRecordId = _.padStart(authorityRecordId, 9, '0');
-    const result = await queryIndex('fin01', 'ANAID', normalizedRecordId);
+    const result = await queryIndex(base, 'ANAID', normalizedRecordId);
     return result.recordIds;
   }
+
+  async function findLinkedSubjectRecords(base, authorityRecordId) {
+    const normalizedRecordId = _.padStart(authorityRecordId, 9, '0');
+    const result = await queryIndex(base, 'ASAID', normalizedRecordId);
+    return result.recordIds;
+  }
+
 
   async function queryIndex(base, index, query) {
 
@@ -72,7 +87,10 @@ function create(X_SERVER) {
   }
 
   return {
-    findLinkedBibRecords,
+    findLinkedToAgentBibRecords,
+    findLinkedToSubjectBibRecords,
+    findLinkedAgentRecords,
+    findLinkedSubjectRecords,
     queryIndex
   };
 
