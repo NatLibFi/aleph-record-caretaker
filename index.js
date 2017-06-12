@@ -6,12 +6,13 @@ oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('auth-sync-service');
 
 const AlephChangeListener = require('../aleph-change-listener/aleph-change-listener');
-const AlephFindService = require('./aleph-find-service');
-const AlephRecordService = require('../sync-tool/aleph-record-service');
-const BibRecordSyncService = require('./bib-record-sync');
-const AuthRecordSyncService = require('./auth-record-sync');
 
-const utils = require('./utils');
+const AlephFindService = require('./lib/aleph-find-service');
+const AlephRecordService = require('./lib/aleph-record-service');
+const BibRecordSyncService = require('./lib/bib-record-sync');
+const AuthRecordSyncService = require('./lib/auth-record-sync');
+
+const utils = require('./lib/utils');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 

@@ -1,6 +1,6 @@
 
-const AlephFindService = require('./aleph-find-service');
-const AlephRecordService = require('../sync-tool/aleph-record-service');
+const AlephFindService = require('./lib/aleph-find-service');
+const AlephRecordService = require('./lib/aleph-record-service');
 
 
 run();
@@ -15,7 +15,7 @@ async function run() {
   const alephFindService = AlephFindService.create(X_SERVER);
   const alephRecordService = AlephRecordService.createAlephRecordService(X_SERVER, credentials);
 
-  const bibIds1 = await alephFindService.findLinkedBibRecords('7');
+  const bibIds1 = await alephFindService.findLinkedToAgentBibRecords('7');
   
   const recordId = bibIds1[0];
   const record = await alephRecordService.loadRecord('fin01', recordId);
@@ -35,6 +35,7 @@ async function run() {
     if (error instanceof AlephRecordService.AlephRecordError) {
       console.log(error);
     } else {
+      console.error(error);
       throw error;
     }
     

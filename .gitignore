@@ -7,3 +7,4 @@ run.sh
 .stash_*
 .aleph-changelistener-cursors*
 .*-cursors.json
+migrations/*iterator*
