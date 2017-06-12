@@ -52,6 +52,7 @@ async function start() {
 }
 
 function onChange(changes) {
+  debug(`Handling ${changes.length} changes.`);
   
   return utils.serial(changes.map((change) => () => {
 
