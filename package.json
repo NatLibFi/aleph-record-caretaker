@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha *.spec.js",
-    "test:watch": "mocha *.spec.js -w"
+    "test": "mocha lib/*.spec.js",
+    "test:watch": "mocha lib/*.spec.js -w"
   },
   "author": "",
   "license": "ISC",
