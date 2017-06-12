@@ -5,7 +5,7 @@ const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('auth-sync-service');
 
-const AlephChangeListener = require('../aleph-change-listener/aleph-change-listener');
+const AlephChangeListener = require('aleph-change-listener');
 
 const AlephFindService = require('./lib/aleph-find-service');
 const AlephRecordService = require('./lib/aleph-record-service');
@@ -23,7 +23,8 @@ const options = {
   Z106Bases: dbConfig.connectString === 'melinda' ? MELINDA_Z106_BASES : LIBTEST_Z106_BASES,
   Z115Base: dbConfig.connectString === 'melinda' ? 'FIN00' : 'USR00',
   pollIntervalMs: '5000',
-  cursorSaveFile: dbConfig.connectString === 'melinda' ? '.aleph-changelistener-cursors.json' : '.libtest-cursors.json'
+  cursorSaveFile: dbConfig.connectString === 'melinda' ? '.aleph-changelistener-cursors.json' : '.libtest-cursors.json',
+  Z106StashPrefix: dbConfig.connectString === 'melinda' ? 'melinda' : 'libtest'
 };
 
 const XServerUrl = dbConfig.connectString === 'melinda' ? 'http://melinda.kansalliskirjasto.fi/X' : 'http://libtest.csc.fi:8992/X';
