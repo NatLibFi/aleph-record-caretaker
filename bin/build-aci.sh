@@ -42,7 +42,7 @@ if [ $ACBUILD_ENGINE == 'chroot' ];then
   $ACBUILD_CMD run --engine chroot -- rm /etc/resolv.conf
 fi
 
-$ACBUILD_CMD write "build/$ACI_NAME_GROUP-$ACI_NAME-$ACI_OS-$ACI_ARCH-$ACI_RELEASE-$ACI_VERSION.aci"
+$ACBUILD_CMD write "build/$ACI_NAME_GROUP-$ACI_NAME-$ACI_RELEASE-$ACI_OS-$ACI_ARCH-$ACI_VERSION.aci"
 $ACBUILD_CMD end
 
 chmod og+rx build
