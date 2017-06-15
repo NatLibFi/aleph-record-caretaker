@@ -1,6 +1,5 @@
 // running this requires at least node 7.10.0
 /* eslint no-console: 0 */
-const dbConfig = require('./dbconfig.js');
 const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('auth-sync-service');
@@ -16,46 +15,48 @@ const utils = require('./lib/utils');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
-const MELINDA_Z106_BASES = ['FIN01', 'FIN10', 'FIN11'];
-const LIBTEST_Z106_BASES = ['FIN01', 'FIN10', 'FIN11'];
-
-const options = {
-  Z106Bases: dbConfig.connectString === 'melinda' ? MELINDA_Z106_BASES : LIBTEST_Z106_BASES,
-  Z115Base: dbConfig.connectString === 'melinda' ? 'FIN00' : 'USR00',
-  pollIntervalMs: '5000',
-  cursorSaveFile: dbConfig.connectString === 'melinda' ? '.aleph-changelistener-cursors.json' : '.libtest-cursors.json',
-  Z106StashPrefix: dbConfig.connectString === 'melinda' ? 'melinda' : 'libtest'
-};
-
 const authSyncServiceOptions = {
   bibRecordBase: 'FIN01',
   agentRecordBase: 'FIN11'
 };
 
-const libtestBaseMap = {
+const baseMap = {
   'FI-ASTERI-S': 'FIN10',
   'FI-ASTERI-N': 'FIN11'
 };
 
-const melindaBaseMap = {
-  'FI-ASTERI-S': 'FIN10',
-  'FI-ASTERI-N': 'FIN11'
+const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01', 'FIN10', 'FIN11']);
+const Z115_BASE = utils.readEnvironmentVariable('Z115Base', 'USR00');
+const POLL_INTERVAL_MS = utils.readEnvironmentVariable('POLL_INTERVAL_MS', 5000);
+const CURSOR_FILE = utils.readEnvironmentVariable('CURSOR_FILE', '.aleph-changelistener-cursors.json');
+const Z106_STASH_PREFIX = utils.readEnvironmentVariable('Z106_STASH_PREFIX', '.z106_stash');
+
+const options = {
+  Z106Bases: Z106_BASES,
+  Z115Base: Z115_BASE,
+  pollIntervalMs: POLL_INTERVAL_MS,
+  cursorSaveFile: CURSOR_FILE,
+  Z106StashPrefix: Z106_STASH_PREFIX
 };
 
-const baseMap = dbConfig.connectString === 'melinda' ? melindaBaseMap : libtestBaseMap;
+const dbConfig = {
+  user: utils.readEnvironmentVariable('ORACLE_USER'),
+  password: utils.readEnvironmentVariable('ORACLE_PASS'),
+  connectString: utils.readEnvironmentVariable('ORACLE_CONNECT_STRING')
+};
 
-const XServerUrl = dbConfig.connectString === 'melinda' ? 'http://melinda.kansalliskirjasto.fi/X' : 'http://libtest.csc.fi:8992/X';
+const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
 
 const credentials = {
-  username: process.env.ALEPH_TEST_USER,
-  password: process.env.ALEPH_TEST_PASS
+  username: utils.readEnvironmentVariable('ALEPH_CARETAKER_USER'),
+  password: utils.readEnvironmentVariable('ALEPH_CARETAKER_PASS')
 };
+
 const alephRecordService = AlephRecordService.createAlephRecordService(XServerUrl, credentials);
 const alephFindService = AlephFindService.create(XServerUrl);
 
 const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, baseMap);
 const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions, baseMap);
-
 
 start().catch(error => { console.error(error); });
 

@@ -9,3 +9,5 @@ run.sh
 .*-cursors.json
 migrations/*iterator*
 .libtest*
+setup_env.sh
+tester.js
