@@ -7,7 +7,7 @@
     "test": "mocha lib/*.spec.js",
     "test:watch": "mocha lib/*.spec.js -w"
   },
-  "author": "",
+  "author": "Pasi Tuominen <pasi.tuominen@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "debug": "^2.6.8",
