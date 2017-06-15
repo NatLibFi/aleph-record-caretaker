@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ACBUILD_CMD="acbuild --no-history --debug"
+ACBUILD_CMD="acbuild --no-history"
 
 if [ -z $ACBUILD_ENGINE ];then
   ACBUILD_ENGINE="systemd-nspawn"
@@ -14,7 +14,20 @@ ACI_NAME_GROUP="melinda"
 ACI_NAME="aleph-record-caretaker-ubuntu"
 ACI_VERSION="1.0.0"
 
-npm run build &&
+rm -rf build && mkdir build &&
+ls | grep -v build | xargs -i cp -r --preserve=all {} build/app/ &&
+
+cat <<EOF > build/nodesource.list
+deb https://deb.nodesource.com/node_7.x xenial main
+deb-src https://deb.nodesource.com/node_7.x xenial main
+EOF
+
+cat <<EOF > build/nodesource.pref
+Explanation: apt: nodesource
+Package: nodejs
+Pin: release a=nodesource
+Pin-Priority: 1000
+EOF
 
 $ACBUILD_CMD begin docker://ubuntu:xenial
 
@@ -24,19 +37,33 @@ $ACBUILD_CMD label add os $ACI_OS
 $ACBUILD_CMD label add arch $ACI_ARCH
 $ACBUILD_CMD label add release $ACI_RELEASE
 
-$ACBUILD_CMD set-exec -- /usr/bin/node /opt/aleph-record-caretaker/app/index.js
+$ACBUILD_CMD environment add TNS_ADMIN `pwd`
+$ACBUILD_CMD environment add LD_LIBRARY_PATH /opt/oracle-instantclient
+
+$ACBUILD_CMD set-working-directory /opt/aleph-record-caretaker/app
+$ACBUILD_CMD set-event-handler pre-start -- cat tnsnames.ora.template | sed -e 's/%HOST%/$HOST/g' -e 's/%SID%/$SID/g' -e 's/%PORT%/$PORT/g'
+$ACBUILD_CMD set-exec -- /usr/bin/node index.js
 
 $ACBUILD_CMD mount add logs /opt/aleph-record-caretaker/logs
 $ACBUILD_CMD mount add --read-only conf /opt/aleph-record-caretaker/conf
 
-$ACBUILD_CMD copy-to-dir ./build/ /opt/aleph-record-caretaker/app
-$ACBUILD_CMD copy ./package.json /opt/aleph-record-caretaker/app/
+$ACBUILD_CMD copy $ORACLE_FILES_DIR /opt/oracle-instantclient
+$ACBUILD_CMD copy build/app /opt/aleph-record-caretaker/app
 
 if [ $ACBUILD_ENGINE == 'chroot' ];then
   $ACBUILD_CMD run --engine chroot -- /bin/bash -c "echo '$(grep -m1 -E ^nameserver /etc/resolv.conf)' > /etc/resolv.conf"
 fi
 
-$ACBUILD_CMD run --engine $ACBUILD_ENGINE --working-dir /opt/aleph-record-caretaker/app -- npm install --production
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- ln -s /opt/oracle-instantclient/libclntsh.so.12.1 /opt/oracle-instantclient/libclntsh.so
+
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install apt-transport-https curl git python make gcc g++ libaio1'
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -'
+
+$ACBUILD_CMD copy build/nodesource.list /etc/apt/sources.list.d/nodesource.list
+$ACBUILD_CMD copy build/nodesource.pref /etc/apt/preferences.d/nodesource.pref
+
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install nodejs'
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE --working-dir /opt/aleph-record-caretaker/app -- /bin/bash -c 'OCI_LIB_DIR=/opt/oracle-instantclient OCI_INC_DIR=/opt/oracle-instantclient/sdk/include npm install --production'
 
 if [ $ACBUILD_ENGINE == 'chroot' ];then
   $ACBUILD_CMD run --engine chroot -- rm /etc/resolv.conf
