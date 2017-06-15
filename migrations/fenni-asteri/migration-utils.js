@@ -314,10 +314,95 @@ function normalizeForHeadingQuery(string) {
    
 }
 
+
+// the first indicator should only apply for 100, 110, 111. For this migration only 100 is handled.
+function selectAuthorizedPortion(record) {
+  const field100 = _.head(record.getFields('100'));
+  const namePortion = field100.subfields.filter((subfield) => {
+    return _.includes(['a', 'b', 'c', 'd', 'g', 'j', 'q'], subfield.code);
+  });
+  
+  return  {
+    subfields: _.cloneDeep(namePortion),
+    ind1: field100.ind1
+  };
+}
+
+function setLinkedAuthorityNamePortion(linkedAuthorityRecordField, namePortion) {
+  
+  const {startsAt, length} = find500NamePortion(linkedAuthorityRecordField);
+  linkedAuthorityRecordField.subfields.splice.bind(linkedAuthorityRecordField.subfields, startsAt, length).apply(null, namePortion.subfields);
+  linkedAuthorityRecordField.ind1 = namePortion.ind1;
+}
+
+function setAuthorizedPortion(bibRecordField, authorizedPortion) {
+
+  const {startsAt, length} = findNamePortion(bibRecordField);
+  bibRecordField.subfields.splice.bind(bibRecordField.subfields, startsAt, length).apply(null, authorizedPortion.subfields);
+  bibRecordField.ind1 = authorizedPortion.ind1;
+}
+
+function findNamePortion(field) {
+  if (_.includes(['100', '600', '700', '800'], field.tag)) {
+    const codes = field.subfields.map(sub => sub.code);
+    const subfieldTIndex = codes.indexOf('t');
+
+    const codesBeforeT = subfieldTIndex === -1 ? codes : codes.slice(0, subfieldTIndex);
+
+    const classified = codesBeforeT.map((code) => {
+      return _.includes(['a', 'b', 'c', 'd', 'g', 'h', 'q'], code);
+    });
+
+    const startsAt = _.findIndex(classified);
+    const endAt = _.findLastIndex(classified);
+    const length = endAt - startsAt + 1;
+
+    // validate that there are no non-name portion fields in the middle
+    const containsOnlyNameFields = classified.slice(startsAt, endAt).every(_.identity);
+    if (!containsOnlyNameFields) {
+      throw new Error('Field contains extra fields in the middle of authorized portion');
+    }
+
+    return { startsAt, length };
+  }
+  
+  throw new Error(`Could not find authorized portion for field ${field.tag}`);
+}
+
+function find500NamePortion(field) {
+  if (field.tag === '500') {
+    const codes = field.subfields.map(sub => sub.code);
+    const subfieldTIndex = codes.indexOf('t');
+
+    const codesBeforeT = subfieldTIndex === -1 ? codes : codes.slice(0, subfieldTIndex);
+
+    const classified = codesBeforeT.map((code) => {
+      return _.includes(['a', 'b', 'c', 'd', 'g', 'h', 'q'], code);
+    });
+
+    const startsAt = _.findIndex(classified);
+    const endAt = _.findLastIndex(classified);
+    const length = endAt - startsAt + 1;
+
+    // validate that there are no non-name portion fields in the middle
+    const containsOnlyNameFields = classified.slice(startsAt, endAt).every(_.identity);
+    if (!containsOnlyNameFields) {
+      throw new Error('Field contains extra fields in the middle of name portion');
+    }
+
+    return { startsAt, length };
+  }
+  
+  throw new Error(`Could not find 500 name portion for field ${field.tag}`);
+}
+
 module.exports = {
+  selectAuthorizedPortion,
   selectNameHeadingPermutations,
   selectFieldForLinkingWithZero,
   selectFieldFromAuthorityRecordForLinkingWithZero,
   normalizeForHeadingQuery,
+  setLinkedAuthorityNamePortion,
+  setAuthorizedPortion,
   LinkingQueryError
 };

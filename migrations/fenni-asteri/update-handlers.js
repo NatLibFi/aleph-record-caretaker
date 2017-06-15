@@ -59,8 +59,8 @@ function handleAsteriRecordFix(task) {
       const fixedField = _.cloneDeep(field);
       
       if (field.tag === '100') {
-        const fennicaAuthorizedPortion = RecordUtils.selectAuthorizedPortion(fixedAuthorityRecord);
-        RecordUtils.setAuthorizedPortion(fixedField, fennicaAuthorizedPortion);
+        const fennicaAuthorizedPortion = MigrationUtils.selectAuthorizedPortion(fixedAuthorityRecord);
+        MigrationUtils.setAuthorizedPortion(fixedField, fennicaAuthorizedPortion);
         fixPunctuationFromAuthField(fixedField);
       }
       if (_.isEqual(field, fixedField)) {
@@ -96,7 +96,6 @@ function handleAsteriRecordFix(task) {
       db: 'ASTERI',
       dbType: 'auth_id'
     })(error);
-
   }
 }
 
@@ -109,16 +108,13 @@ function handleMelindaRecord(task) {
     fields.forEach(field => {
   
       if (RecordUtils.isLinkedField(field)) {
-        console.log(`ERROR: Melinda record ${melindaId} contains linked fields (cyrillic)`);
-        console.log('BIB:');
-        console.log(melindaRecord.toString());
+        console.log(`WARN: Melinda record ${melindaId} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
         return;
       }
       
       describeAction('MELINDA', '(FIN11)', asteriIdForLinking, fixedAuthorityRecord, melindaId, field);
     });
 
-    return melindaRecord;
   } catch(error) {
 
     errorLogger({
@@ -150,8 +146,8 @@ function handleLinkedAsteriRecord(link) {
       const fixedField = _.cloneDeep(field);
       
       if (field.tag === '100') {
-        const fennicaAutorityRecordNamePortion = RecordUtils.selectNamePortion(fixedAuthorityRecord);
-        RecordUtils.setLinkedAuthorityNamePortion(fixedField, fennicaAutorityRecordNamePortion);
+        const fennicaAutorityRecordNamePortion = MigrationUtils.selectNamePortion(fixedAuthorityRecord);
+        MigrationUtils.setLinkedAuthorityNamePortion(fixedField, fennicaAutorityRecordNamePortion);
         fixPunctuationFromAuthField(fixedField);
       }
       if (_.isEqual(field, fixedField)) {
@@ -192,27 +188,19 @@ function handleLinkedAsteriRecord(link) {
 }
 
 function handleFenniRecord(link) {
-
   const { bibRecord, bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString } = link;
 
-  // find the tag we want
   try {
     const fields = MigrationUtils.selectFieldForLinkingWithZero(bibRecord, queryTermsForFieldSearch);
+
     fields.forEach(field => {
-      // actually, the normal case is that the authority record is incorrect, so when that is fixed the linked ones are wrong
-      // and fuzzy ones *may* be correct.
-      
 
       if (RecordUtils.isLinkedField(field)) {
-        console.log(`ERROR: FENNI record ${bib_id} contains linked fields (cyrillic)`);
-        console.log('BIB:');
-        console.log(bibRecord.toString());
+        console.log(`WARN: FENNI record ${bib_id} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
         return;
       }
 
-      
       describeAction('FENNI', '(FI-ASTERI-N)', asteriIdForLinking, fixedAuthorityRecord, bib_id, field);
-      
     });
     
   } catch(error) {

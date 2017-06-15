@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const RecordUtils = require('../../lib/record-utils');
+const MigrationUtils = require('./migration-utils');
 
 function fixBibRecordField(inputBibRecordField, authRecord) {
   
@@ -9,9 +9,9 @@ function fixBibRecordField(inputBibRecordField, authRecord) {
 
   const bibRecordField = _.cloneDeep(inputBibRecordField);
   
-  const authorizedPortion = RecordUtils.selectAuthorizedPortion(authRecord);
+  const authorizedPortion = MigrationUtils.selectAuthorizedPortion(authRecord);
 
-  RecordUtils.setAuthorizedPortion(bibRecordField, authorizedPortion);
+  MigrationUtils.setAuthorizedPortion(bibRecordField, authorizedPortion);
   
   return bibRecordField;
 }
