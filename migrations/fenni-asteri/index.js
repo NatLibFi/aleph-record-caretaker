@@ -8,6 +8,7 @@ const debug = require('debug')('main');
 
 const ResolveMelindaIdService = require('../../lib/record-id-resolution-service');
 const RecordUtils = require('../../lib/record-utils');
+const MigrationUtils = require('./migration-utils');
 const fixAuthorityRecordYears = require('./fix-authority-record');
 const AlephRecordService = require('../../lib/aleph-record-service');
 const voyagerRecordService = require('./voyager-record-service');
@@ -155,7 +156,7 @@ async function authIdToTasks(connection, auth_id) {
     const links = RecordUtils.selectMelindaLinks(authorityRecord, '(FI-ASTERI-N)');
     const asteriId = await resolveAsteriId(undefined, auth_id, ' FENAU', links);
     
-    const queryTermsForFieldSearch = RecordUtils.selectNameHeadingPermutations(authorityRecord);
+    const queryTermsForFieldSearch = MigrationUtils.selectNameHeadingPermutations(authorityRecord);
     const queryTermsString = queryTermsForFieldSearch.map(sets => sets.map(sub => `‡${sub.code}${sub.value}`));
 
     const authorityRecordHas100 = authorityRecord.getFields('100').length === 1;
@@ -495,7 +496,7 @@ async function nextFrom(resultSet) {
     const NORMAL_FROM_DB = row.NH.toString('utf-8');
     const DISPLAY_FROM_DB = row.DH.toString('utf-8');
 
-    const NORMAL_FROM_UTILS = RecordUtils.normalizeForHeadingQuery(DISPLAY_FROM_DB);
+    const NORMAL_FROM_UTILS = MigrationUtils.normalizeForHeadingQuery(DISPLAY_FROM_DB);
 
     if (NORMAL_FROM_UTILS !== NORMAL_FROM_DB) {
       console.log(`${row.AUTH_ID}\t${DISPLAY_FROM_DB} -> '${NORMAL_FROM_UTILS}' should be '${NORMAL_FROM_DB}'`);

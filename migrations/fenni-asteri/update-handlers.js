@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const RecordUtils = require('../../lib/record-utils');
+const MigrationUtils = require('./migration-utils');
 const fixBibRecordField = require('./fix-bib-record');
 const fs = require('fs');
 
@@ -50,7 +51,7 @@ function handleAsteriRecordFix(task) {
   
   try {
     
-    const fields = RecordUtils.selectFieldForLinkingWithZero(asteriRecord, queryTermsForFieldSearch);
+    const fields = MigrationUtils.selectFieldForLinkingWithZero(asteriRecord, queryTermsForFieldSearch);
     fields.forEach(field => {
 
       const link = `(FIN11)${asteriIdForLinking}`;
@@ -103,7 +104,7 @@ function handleMelindaRecord(task) {
   const {melindaRecord, melindaId, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = task;
   
   try {
-    const fields = RecordUtils.selectFieldForLinkingWithZero(melindaRecord, queryTermsForFieldSearch);
+    const fields = MigrationUtils.selectFieldForLinkingWithZero(melindaRecord, queryTermsForFieldSearch);
 
     fields.forEach(field => {
   
@@ -141,7 +142,7 @@ function handleLinkedAsteriRecord(link) {
 
   try {
     
-    const fields = RecordUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedAsteriRecord, queryTermsForFieldSearch);
+    const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedAsteriRecord, queryTermsForFieldSearch);
     fields.forEach(field => {
 
       const link = `(FIN11)${asteriIdForLinking}`;
@@ -196,7 +197,7 @@ function handleFenniRecord(link) {
 
   // find the tag we want
   try {
-    const fields = RecordUtils.selectFieldForLinkingWithZero(bibRecord, queryTermsForFieldSearch);
+    const fields = MigrationUtils.selectFieldForLinkingWithZero(bibRecord, queryTermsForFieldSearch);
     fields.forEach(field => {
       // actually, the normal case is that the authority record is incorrect, so when that is fixed the linked ones are wrong
       // and fuzzy ones *may* be correct.
@@ -268,7 +269,7 @@ function handleLinkedFenauRecord(link) {
 
   try {
     
-    const fields = RecordUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedFenauRecord, queryTermsForFieldSearch);
+    const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedFenauRecord, queryTermsForFieldSearch);
     fields.forEach(field => {
 
       const link = `(FI-ASTERI-N)${asteriIdForLinking}`;
@@ -349,7 +350,7 @@ function handleFenauRecord(task) {
 
     try {
       
-      const fields = RecordUtils.selectFieldForLinkingWithZero(fenauRecord, queryTermsForFieldSearch);
+      const fields = MigrationUtils.selectFieldForLinkingWithZero(fenauRecord, queryTermsForFieldSearch);
       fields.forEach(field => {
         const fixedField = _.cloneDeep(field);
 
@@ -386,7 +387,7 @@ function errorLogger(params) {
       return;
     }
 
-    if (error instanceof RecordUtils.LinkingQueryError) {
+    if (error instanceof MigrationUtils.LinkingQueryError) {
 
       if (error.message === 'Found only 8XX field for linking.') {
         console.log(`WARN: Found only 8XX field from ${db} record ${linkSourceRecordId} to add the link to authority record ${linkTargetRecordId}. Query terms: ${queryTermsString}`);
