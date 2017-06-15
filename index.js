@@ -17,7 +17,7 @@ const utils = require('./lib/utils');
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
 const MELINDA_Z106_BASES = ['FIN01', 'FIN10', 'FIN11'];
-const LIBTEST_Z106_BASES = ['FIN01', 'FIN19'];
+const LIBTEST_Z106_BASES = ['FIN01', 'FIN10', 'FIN11'];
 
 const options = {
   Z106Bases: dbConfig.connectString === 'melinda' ? MELINDA_Z106_BASES : LIBTEST_Z106_BASES,
@@ -27,13 +27,34 @@ const options = {
   Z106StashPrefix: dbConfig.connectString === 'melinda' ? 'melinda' : 'libtest'
 };
 
+const authSyncServiceOptions = {
+  bibRecordBase: 'FIN01',
+  agentRecordBase: 'FIN11'
+};
+
+const libtestBaseMap = {
+  'FI-ASTERI-S': 'FIN10',
+  'FI-ASTERI-N': 'FIN11'
+};
+
+const melindaBaseMap = {
+  'FI-ASTERI-S': 'FIN10',
+  'FI-ASTERI-N': 'FIN11'
+};
+
+const baseMap = dbConfig.connectString === 'melinda' ? melindaBaseMap : libtestBaseMap;
+
 const XServerUrl = dbConfig.connectString === 'melinda' ? 'http://melinda.kansalliskirjasto.fi/X' : 'http://libtest.csc.fi:8992/X';
 
-const alephRecordService = AlephRecordService.createAlephRecordService(XServerUrl);
+const credentials = {
+  username: process.env.ALEPH_TEST_USER,
+  password: process.env.ALEPH_TEST_PASS
+};
+const alephRecordService = AlephRecordService.createAlephRecordService(XServerUrl, credentials);
 const alephFindService = AlephFindService.create(XServerUrl);
 
-const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService);
-const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService);
+const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, baseMap);
+const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions, baseMap);
 
 
 start().catch(error => { console.error(error); });
@@ -59,9 +80,12 @@ function onChange(changes) {
 
     switch(change.library) {
       case 'FIN01': return bibRecordSyncService.handleBibChange(change);
-      //case 'FIN10': return AuthRecordSync.handleAuthChange(change);
+      //case 'FIN10': return authRecordSyncService.handleAuthChange(change);
       case 'FIN11': return authRecordSyncService.handleAuthChange(change);
       case 'FIN19': return authRecordSyncService.handleAuthChange(change);
+      default: throw new Error(`Could not find handler for base ${change.library}`);
     }
-  }));
+  })).catch(error => {
+    console.error(error);
+  });
 }
