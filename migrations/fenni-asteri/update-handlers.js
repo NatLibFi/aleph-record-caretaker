@@ -387,6 +387,11 @@ function errorLogger(params) {
     }
 
     if (error instanceof RecordUtils.LinkingQueryError) {
+
+      if (error.message === 'Found only 8XX field for linking.') {
+        console.log(`WARN: Found only 8XX field from ${db} record ${linkSourceRecordId} to add the link to authority record ${linkTargetRecordId}. Query terms: ${queryTermsString}`);
+        return;
+      }
       console.log(`ERROR: Could not find field from ${db} record ${linkSourceRecordId} to add the link to authority record ${linkTargetRecordId}. Query terms: ${queryTermsString}`);
       logRecords();
       return;
