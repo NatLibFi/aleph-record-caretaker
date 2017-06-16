@@ -74,8 +74,11 @@ function createRecordFixer(rules, recordType = RecordTypes.BIBLIOGRAPHIC) {
       
       if (currentPortion) {
         if (currentPortion !== portion) {
-          debug(`Current portion changed to ${portion}. Adding punctuation for portion.`);
-          addNamePortionPunctuation(preceedingField);
+          debug(`Current portion changed to ${portion}.`);
+          if (portion !== 'S') {
+            debug('Adding punctuation for portion.');
+            addNamePortionPunctuation(preceedingField);
+          }
         } else {
           debug(`Current stayed as ${portion}. Adding punctuation for subfield.`);
           addSubfieldPunctuation(preceedingField, subfield, rulesForField);

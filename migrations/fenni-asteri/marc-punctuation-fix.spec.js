@@ -171,7 +171,7 @@ describe('fixPunctuation', () => {
     ],
     [
       '600 14 ‡aHämäläinen, Helvi‡d1907-1998‡xhenkilöhistoria.',
-      '600 14 ‡aHämäläinen, Helvi,‡d1907-1998‡xhenkilöhistoria.' // ennen subject subdivision osaa ei tule pistettä. jos 600 kentän xyzv tulee nimiosuuden jälkeen ni ei pistettä. jos siinä on nimi+nimeke+subdivision ni sit nimen jälkee piste mut nimekkeen ei.
+      '600 14 ‡aHämäläinen, Helvi,‡d1907-1998‡xhenkilöhistoria.'
     ],
     [
       '700 1  ‡aTopelius, Zacharias‡d1818-1898‡tLjungblommor.‡nI‡f1845.',
