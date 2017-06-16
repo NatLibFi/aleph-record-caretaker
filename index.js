@@ -3,6 +3,7 @@
 const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('auth-sync-service');
+const _ = require('lodash');
 
 const AlephChangeListener = require('aleph-change-listener');
 
@@ -77,7 +78,7 @@ async function start() {
 function onChange(changes) {
   debug(`Handling ${changes.length} changes.`);
   
-  return utils.serial(changes.map((change) => () => {
+  return serial(changes.map((change) => () => {
 
     switch(change.library) {
       case 'FIN01': return bibRecordSyncService.handleBibChange(change);
@@ -90,3 +91,19 @@ function onChange(changes) {
     console.error(error);
   });
 }
+
+function serial(funcs) {
+  return funcs.reduce((promise, func) => {
+    return new Promise((resolve) => {
+      promise.then((all) => {
+        func()
+          .then(result => resolve(_.concat(all, result)))
+          .catch(error => {
+            console.error(error);
+            resolve(_.concat(all, error));
+          });
+      });
+    });
+  }, Promise.resolve([]));
+}
+
