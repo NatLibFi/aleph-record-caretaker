@@ -22,7 +22,12 @@ function fixAuthorityRecordYears(inputRecord) {
   if (yearOfDeathFrom046g && death && yearOfDeathFrom046g !== death) {
     throw new Error('Record has year of death in 046g and 100d and they are mismatched');
   }
-
+  
+  // all defined years must contain only numbers.
+  if (!_.compact([yearOfBirthFrom046f, yearOfDeathFrom046g, birth, death]).every(year => /^\d+$/.test(year))) {
+    return record;
+  }
+  
   const yearOfBirth = yearOfBirthFrom046f || birth;
   const yearOfDeath = yearOfDeathFrom046g || death;
 
