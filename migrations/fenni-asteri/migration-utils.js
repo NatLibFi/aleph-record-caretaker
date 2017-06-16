@@ -44,7 +44,6 @@ function selectNameHeadingPermutations(record) {
   const d = selectFirstSubfieldValue(record, '100', 'd');
   const normalizedD = normalizeForHeadingQuery(d);
 
-  // TODO: JOS ON D jossa on vain suluissa oleva numero, ex. (1) niin sen voi heittää <<<-:seen
   const [birth100d, death100d] = RecordUtils.parseYearsFrom100d(record);
   const birth046 = RecordUtils.selectBirthYear(record);
   const death046 = RecordUtils.selectDeathYear(record);
