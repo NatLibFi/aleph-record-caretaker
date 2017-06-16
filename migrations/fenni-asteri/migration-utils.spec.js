@@ -1,10 +1,56 @@
 const expect = require('chai').expect;
 const MarcRecord = require('marc-record-js');
+const _ = require('lodash');
 
 const MigrationUtils = require('./migration-utils');
 const RecordUtils = require('../../lib/record-utils');
 
 describe('MigrationUtils', () => {
+  describe('selectFieldForLinkingWithZero', () => {
+    let fakeRecord;
+    beforeEach(() => fakeRecord = createFakeRecord());
+
+    it('should return an array of fields that match the query terms', () => {
+      fakeRecord.appendField(RecordUtils.stringToField('100    ‡aAakkula, Immo,‡tcontent'));
+      fakeRecord.appendField(RecordUtils.stringToField('700    ‡aAakkula, Immo'));
+
+      const fakeQueryTerms = [
+        [{code: 'a', value: 'AAKKULA IMMO'}]
+      ];
+
+      const fields = MigrationUtils.selectFieldForLinkingWithZero(fakeRecord, fakeQueryTerms);
+
+      expect(fields).to.be.instanceof(Array);
+      expect(fields).length.to.be(2);
+    });
+    
+    it('should match the years from d subfield', () => {
+      fakeRecord.appendField(RecordUtils.stringToField('100    ‡aAakkula, Immo,‡d1992-2017'));
+      fakeRecord.appendField(RecordUtils.stringToField('700    ‡aAakkula, Immo'));
+
+      const fakeQueryTerms = [
+        [{code: 'a', value: 'AAKKULA IMMO'}, {code: 'd', value: '1992 2017'}]
+      ];
+
+      const fields = MigrationUtils.selectFieldForLinkingWithZero(fakeRecord, fakeQueryTerms);
+
+      expect(fields).length.to.be(1);
+      expect(RecordUtils.fieldToString(_.head(fields))).to.equal('100    ‡aAakkula, Immo,‡d1992-2017');
+    });
+
+    it('should not use any years in d subfield with values enclosed in parenthesis for matching', () => {
+      fakeRecord.appendField(RecordUtils.stringToField('100    ‡aAakkula, Immo,‡d(12)'));
+      
+      const fakeQueryTerms = [
+        [{code: 'a', value: 'AAKKULA IMMO'}]
+      ];
+
+      const fields = MigrationUtils.selectFieldForLinkingWithZero(fakeRecord, fakeQueryTerms);
+
+      expect(fields).length.to.be(1);
+      expect(RecordUtils.fieldToString(_.head(fields))).to.equal('100    ‡aAakkula, Immo,‡d(12)');
+    });
+  });
 
   describe('selectNameHeadingPermutations', () => {
     let fakeRecord;

@@ -118,17 +118,25 @@ function selectFieldForLinkingWithZero(record, queryTerms) {
   const select8XXMeetingNameFields = _.partial(selectNameFields,   ['811']);
   
   
-  // TODO: bibissä voi olla X00 kentissä d-osakentässä suluissa numero ex. (1), jota ei käytetä vertailussa.
+  // bibissä voi olla X00 kentissä d-osakentässä suluissa numero ex. (1), jota ei käytetä vertailussa.
+  const dropYearsSubfieldsWithInvalidContent = (nameFieldDef) => {
+    if (!nameFieldDef.nameFields) return nameFieldDef;
+    
+    nameFieldDef.nameFields = nameFieldDef.nameFields.filter(sub => {
+      return !(sub.code === 'd' && /^\(\d+\)$/.test(sub.value));
+    });
+
+    return nameFieldDef;
+  };
 
   const matcher = name => {
     const normalized = name.nameFields.map(sub => ({ code: sub.code, value: normalizeForHeadingQuery(sub.value) }));
-    
     return queryTerms.some(term => _.isEqual(term, normalized)); 
     
   };
 
   const nameFields = _.concat(
-    selectPersonalNameFields(record), 
+    selectPersonalNameFields(record).map(dropYearsSubfieldsWithInvalidContent), 
     selectCorporateNameFields(record), 
     selectMeetingNameFields(record)
   );
