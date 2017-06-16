@@ -7,9 +7,11 @@ function fixBibRecordField(inputBibRecordField, authRecord) {
     return inputBibRecordField;
   }
 
-  const bibRecordField = _.cloneDeep(inputBibRecordField);
+  let bibRecordField = _.cloneDeep(inputBibRecordField);
   
   const authorizedPortion = MigrationUtils.selectAuthorizedPortion(authRecord);
+
+  bibRecordField = MigrationUtils.migrateCSubfield(authorizedPortion, bibRecordField);
 
   MigrationUtils.setAuthorizedPortion(bibRecordField, authorizedPortion);
   

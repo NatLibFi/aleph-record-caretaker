@@ -3,9 +3,79 @@ const MarcRecord = require('marc-record-js');
 const _ = require('lodash');
 
 const MigrationUtils = require('./migration-utils');
+const fixBibRecordField = require('./fix-bib-record');
 const RecordUtils = require('../../lib/record-utils');
 
 describe('MigrationUtils', () => {
+
+  describe('migrateCSubfield', () => {
+  
+    const tests = [
+      [
+        'should keep v and drop c if bib has both ‡c(fiktiivinen hahmo) and ‡vfiktio.',
+        '100 14 ‡aLardot, Raisa',
+        '600 14 ‡aLardot, Raisa‡c(fiktiivinen hahmo)‡vfiktio.',
+        '600 14 ‡aLardot, Raisa‡vfiktio.'
+      ],[
+        'should create new ‡vfiktio. and drop c if bib has only ‡c(fiktiivinen hahmo)',
+        '100 14 ‡aLardot, Raisa',
+        '600 14 ‡aLardot, Raisa‡c(fiktiivinen hahmo)',
+        '600 14 ‡aLardot, Raisa‡vfiktio.'
+      ],[
+        'should keep v and drop c if bib has both',
+        '100 14 ‡aLardot, Raisa',
+        '600 14 ‡aLardot, Raisa‡c(fiktiv gestalt)‡vfiktion.',
+        '600 14 ‡aLardot, Raisa‡vfiktion.'
+      ],[
+        'should create new ‡vfiktion. and drop c if bib has only ‡c(fiktiv gestalt)',
+        '100 14 ‡aLardot, Raisa',
+        '600 14 ‡aLardot, Raisa‡c(fiktiv gestalt)',
+        '600 14 ‡aLardot, Raisa‡vfiktion.'
+      ],[
+        'should not create a new ‡v if auth and bib have ‡c',
+        '100 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)',
+        '600 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)',
+        '600 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)'
+      ],[
+        'should keep non-authorized fields when applying migration',
+        '100 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)',
+        '700 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)‡etoimittaja.',
+        '700 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)‡etoimittaja.'
+      ],[
+        'should keep v from bib and c from auth',
+        '100 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)',
+        '600 14 ‡aRinta-Puhkuri, Tyyne‡vfiktio.',
+        '600 14 ‡aRinta-Puhkuri, Tyyne‡c(fiktiivinen hahmo)‡vfiktio.'
+      ],[
+        'should not create a new ‡v if auth has c with something else than (fiktiivinen hahmo) or (fiktiv gestalt)',
+        '100 14 ‡aRinta-Puhkuri, Tyyne‡cjotain-muuta',
+        '600 14 ‡aRinta-Puhkuri, Tyyne‡vfiktio.',
+        '600 14 ‡aRinta-Puhkuri, Tyyne‡cjotain-muuta‡vfiktio.'
+      ],[
+        'should not create anything if bib has c with something else than (fiktiivinen hahmo) or (fiktiv gestalt)',
+        '100 14 ‡aLardot, Raisa',
+        '600 14 ‡aLardot, Raisa,‡cjotain muuta',
+        '600 14 ‡aLardot, Raisa'
+      ]
+    ];
+
+    tests.forEach(test => {
+
+      const [testName, authorityRecordFieldStr, bibRecordFieldStr, expectedFieldStr] = test;
+      it(testName, () => {
+        const authorityRecordField = RecordUtils.stringToField(authorityRecordFieldStr);
+        const authorityRecord = new MarcRecord({ fields: [authorityRecordField] });
+        const bibRecordField = RecordUtils.stringToField(bibRecordFieldStr);
+
+        const resultingField = fixBibRecordField(bibRecordField, authorityRecord);
+        expect(RecordUtils.fieldToString(resultingField)).to.equal(expectedFieldStr);
+      });
+      
+    });
+
+
+  });
+
   describe('selectFieldForLinkingWithZero', () => {
     let fakeRecord;
     beforeEach(() => fakeRecord = createFakeRecord());
@@ -49,6 +119,21 @@ describe('MigrationUtils', () => {
 
       expect(fields).length.to.be(1);
       expect(RecordUtils.fieldToString(_.head(fields))).to.equal('100    ‡aAakkula, Immo,‡d(12)');
+    });
+
+    it('should not use any c subfield with content (fiktiivinen hahmo) or (fiktiv gestalt)', () => {
+      fakeRecord.appendField(RecordUtils.stringToField('600  4 ‡aAakkula, Immo,‡c(fiktiivinen hahmo)'));
+      fakeRecord.appendField(RecordUtils.stringToField('600  4 ‡aAakkula, Immo,‡c(fiktiv gestalt)'));
+      
+      const fakeQueryTerms = [
+        [{code: 'a', value: 'AAKKULA IMMO'}]
+      ];
+
+      const fields = MigrationUtils.selectFieldForLinkingWithZero(fakeRecord, fakeQueryTerms);
+
+      expect(fields).length.to.be(2);
+      expect(RecordUtils.fieldToString(fields[0])).to.equal('600  4 ‡aAakkula, Immo,‡c(fiktiivinen hahmo)');
+      expect(RecordUtils.fieldToString(fields[1])).to.equal('600  4 ‡aAakkula, Immo,‡c(fiktiv gestalt)');
     });
   });
 

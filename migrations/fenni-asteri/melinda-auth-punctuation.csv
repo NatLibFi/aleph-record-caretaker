@@ -22,7 +22,7 @@
 "X(00|10|11)","$4 "," Relator code (R)","NC","none",
 ,,,,,
 ,"Title portion",,,,
-"X00, X10","$f "," Date of a work (NR)","T","period",
+"X(00|10)","$f "," Date of a work (NR)","T","period",
 "[678][01]0","$h "," Medium (NR)   [600/700/800]","T","period",
 "7[01]0","$i "," Relationship information [700] (R)","T","none",
 "X[01]0","$k "," Form subheading (R)","T","period",

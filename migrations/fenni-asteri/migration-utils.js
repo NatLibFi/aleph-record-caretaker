@@ -129,6 +129,16 @@ function selectFieldForLinkingWithZero(record, queryTerms) {
     return nameFieldDef;
   };
 
+  const dropCSubfieldWithFictionContent = (nameFieldDef) => {
+    if (nameFieldDef.field.tag !== '600') return nameFieldDef;
+    
+    nameFieldDef.nameFields = nameFieldDef.nameFields
+      .filter(sub => !(sub.code === 'c' && sub.value === '(fiktiivinen hahmo)'))
+      .filter(sub => !(sub.code === 'c' && sub.value === '(fiktiv gestalt)'));
+      
+    return nameFieldDef;
+  };
+
   const matcher = name => {
     const normalized = name.nameFields.map(sub => ({ code: sub.code, value: normalizeForHeadingQuery(sub.value) }));
     return queryTerms.some(term => _.isEqual(term, normalized)); 
@@ -136,7 +146,7 @@ function selectFieldForLinkingWithZero(record, queryTerms) {
   };
 
   const nameFields = _.concat(
-    selectPersonalNameFields(record).map(dropYearsSubfieldsWithInvalidContent), 
+    selectPersonalNameFields(record).map(dropYearsSubfieldsWithInvalidContent).map(dropCSubfieldWithFictionContent), 
     selectCorporateNameFields(record), 
     selectMeetingNameFields(record)
   );
@@ -404,6 +414,37 @@ function find500NamePortion(field) {
   throw new Error(`Could not find 500 name portion for field ${field.tag}`);
 }
 
+function contains(code, values) {
+  return (subfield) => {
+    return subfield.code === code && _.includes(values, subfield.value);
+  };
+}
+
+function migrateCSubfield(authorityRecordAuthorizedPortion, bibRecordField) {
+  const cFiction = contains('c', ['(fiktiivinen hahmo)','(fiktiv gestalt)']);
+  
+  if (authorityRecordAuthorizedPortion.subfields.some(cFiction) && bibRecordField.subfields.some(cFiction)) {
+    return bibRecordField;
+  }
+  
+  if (bibRecordField.subfields.some(contains('c', ['(fiktiivinen hahmo)']))) {
+  
+    if (!bibRecordField.subfields.some(contains('v', ['fiktio.']))) {
+      bibRecordField.subfields.push({code: 'v', value: 'fiktio.'});
+    }
+    bibRecordField.subfields = bibRecordField.subfields.filter(sub => !contains('c', ['(fiktiivinen hahmo)'])(sub) );
+  }
+
+  if (bibRecordField.subfields.some(contains('c', ['(fiktiv gestalt)']))) {
+    if (!bibRecordField.subfields.some(contains('v', ['fiktion.']))) {
+      bibRecordField.subfields.push({code: 'v', value: 'fiktion.'});
+    }
+    bibRecordField.subfields = bibRecordField.subfields.filter(sub => !contains('c', ['(fiktiv gestalt)'])(sub) );
+  }
+
+  return bibRecordField;
+}
+
 module.exports = {
   selectAuthorizedPortion,
   selectNameHeadingPermutations,
@@ -412,5 +453,6 @@ module.exports = {
   normalizeForHeadingQuery,
   setLinkedAuthorityNamePortion,
   setAuthorizedPortion,
-  LinkingQueryError
+  LinkingQueryError,
+  migrateCSubfield
 };
