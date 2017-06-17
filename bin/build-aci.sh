@@ -41,7 +41,8 @@ $ACBUILD_CMD environment add TNS_ADMIN /opt/aleph-record-caretaker/app
 $ACBUILD_CMD environment add LD_LIBRARY_PATH /opt/oracle-instantclient
 
 $ACBUILD_CMD set-working-directory /opt/aleph-record-caretaker/app
-$ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'cp tnsnames.ora.template tnsnames.ora && sed -i -e "s/%/|/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" tnsnames.ora'
+$ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'echo "127.0.0.1 $(hostname)" > /etc/hosts && cp tnsnames.ora.template tnsnames.ora && sed -i -e "s/%/|/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" tnsnames.ora'
+
 $ACBUILD_CMD set-exec -- /usr/bin/node index.js
 
 $ACBUILD_CMD mount add logs /opt/aleph-record-caretaker/logs
@@ -55,7 +56,6 @@ if [ $ACBUILD_ENGINE == 'chroot' ];then
 fi
 
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- ln -s /opt/oracle-instantclient/libclntsh.so.12.1 /opt/oracle-instantclient/libclntsh.so
-
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install apt-transport-https curl git python make gcc g++ libaio1'
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -'
 
