@@ -1,0 +1,14 @@
+build
+node_modules
+dbconfig.js
+tnsnames.ora
+doc.txt
+run.sh
+.auth-sync-service-iterators
+.stash_*
+.aleph-changelistener-cursors*
+.*-cursors.json
+migrations/*iterator*
+.libtest*
+setup_env.sh
+tester.js

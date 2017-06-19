@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo ok"
+    "test": "mocha lib/*.spec.js",
+    "test:watch": "mocha lib/*.spec.js -w"
   },
   "author": "Pasi Tuominen <pasi.tuominen@gmail.com>",
   "license": "ISC",
