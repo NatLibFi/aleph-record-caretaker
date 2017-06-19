@@ -6,6 +6,10 @@ const oracledb = require('oracledb');
 const fs = require('fs');
 const debug = require('debug')('main');
 
+const cachePath = require('path').join(__dirname, '..', 'cache');
+const memoize = require('memoize-fs')({ cachePath: cachePath });
+const MarcRecord = require('marc-record-js');
+
 const ResolveMelindaIdService = require('../../lib/record-id-resolution-service');
 const RecordUtils = require('../../lib/record-utils');
 const MigrationUtils = require('./migration-utils');
@@ -34,15 +38,47 @@ const X_SERVER_URL = `${ALEPH_URL}/X`;
 
 const alephRecordService = AlephRecordService.createAlephRecordService(X_SERVER_URL);
 
-const resolveMelindaId = ResolveMelindaIdService.create(X_SERVER_URL, ALEPH_URL, 'fin01');
-const resolveAsteriId = ResolveMelindaIdService.create(X_SERVER_URL, ALEPH_URL, 'fin11');
+let resolveMelindaId = ResolveMelindaIdService.create(X_SERVER_URL, ALEPH_URL, 'fin01');
+let resolveAsteriId = ResolveMelindaIdService.create(X_SERVER_URL, ALEPH_URL, 'fin11');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
 const estimation = TimeEstimation.create();
 
 const IS_BATCH_RUN = process.argv.length !== 3;
+
+
+function m(orig) {
+  return function() {
+    const args = arguments;
+    return memoize.fn(orig).then(memod => {
+      return memod.apply(null, args);
+    });
+  };
+}
+function mrec(orig) {
+  return function() {
+    const args = arguments;
+    return memoize.fn(orig).then(memod => {
+      return memod.apply(null, args).then(rec => new MarcRecord(rec));
+    });
+  };
+}
+
+voyagerRecordService.readAuthorityRecord = mrec(voyagerRecordService.readAuthorityRecord);
+alephRecordService.loadRecord = mrec(alephRecordService.loadRecord);
+voyagerRecordService.readBibRecord = mrec(voyagerRecordService.readBibRecord);
+
+resolveQuery = m(resolveQuery);
+headingIdsToBibIds = m(headingIdsToBibIds);
+queryFuzzy = m(queryFuzzy);
+queryForLinkedAuthorityRecords = m(queryForLinkedAuthorityRecords);
+queryFromIndices = m(queryFromIndices);
+resolveAsteriId = m(resolveAsteriId);
+resolveMelindaId = m(resolveMelindaId);
+
 start();
+
 
 function runner(lastAuthorityRecordId) {
 
