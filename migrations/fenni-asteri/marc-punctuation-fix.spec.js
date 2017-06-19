@@ -176,6 +176,10 @@ describe('fixPunctuation', () => {
     [
       '700 1  ‡aTopelius, Zacharias‡d1818-1898‡tLjungblommor.‡nI‡f1845.',
       '700 1  ‡aTopelius, Zacharias,‡d1818-1898.‡tLjungblommor.‡nI.‡f1845.'
+    ],
+    [
+      '700 1  ‡aTopelius, Zacharias‡d1818-1898,',
+      '700 1  ‡aTopelius, Zacharias,‡d1818-1898,'
     ]
   ];
 
