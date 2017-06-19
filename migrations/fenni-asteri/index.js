@@ -6,8 +6,7 @@ const oracledb = require('oracledb');
 const fs = require('fs');
 const debug = require('debug')('main');
 
-const cachePath = require('path').join(__dirname, '..', 'cache');
-const memoize = require('memoize-fs')({ cachePath: cachePath });
+
 const MarcRecord = require('marc-record-js');
 
 const ResolveMelindaIdService = require('../../lib/record-id-resolution-service');
@@ -48,7 +47,9 @@ const estimation = TimeEstimation.create();
 const IS_BATCH_RUN = process.argv.length !== 3;
 
 
-function m(orig) {
+function m(key, orig) {
+  const cachePath = require('path').join(__dirname, '..', 'cache', key);
+  const memoize = require('memoize-fs')({ cachePath: cachePath });
   return function() {
     const args = arguments;
     return memoize.fn(orig).then(memod => {
@@ -56,7 +57,9 @@ function m(orig) {
     });
   };
 }
-function mrec(orig) {
+function mrec(key, orig) {
+  const cachePath = require('path').join(__dirname, '..', 'cache', key);
+  const memoize = require('memoize-fs')({ cachePath: cachePath });
   return function() {
     const args = arguments;
     return memoize.fn(orig).then(memod => {
@@ -65,17 +68,17 @@ function mrec(orig) {
   };
 }
 
-voyagerRecordService.readAuthorityRecord = mrec(voyagerRecordService.readAuthorityRecord);
-alephRecordService.loadRecord = mrec(alephRecordService.loadRecord);
-voyagerRecordService.readBibRecord = mrec(voyagerRecordService.readBibRecord);
+voyagerRecordService.readAuthorityRecord = mrec('voyagerRecordService.readAuthorityRecord', voyagerRecordService.readAuthorityRecord);
+alephRecordService.loadRecord = mrec('alephRecordService.loadRecord', alephRecordService.loadRecord);
+voyagerRecordService.readBibRecord = mrec('voyagerRecordService.readBibRecord', voyagerRecordService.readBibRecord);
 
-resolveQuery = m(resolveQuery);
-headingIdsToBibIds = m(headingIdsToBibIds);
-queryFuzzy = m(queryFuzzy);
-queryForLinkedAuthorityRecords = m(queryForLinkedAuthorityRecords);
-queryFromIndices = m(queryFromIndices);
-resolveAsteriId = m(resolveAsteriId);
-resolveMelindaId = m(resolveMelindaId);
+resolveQuery = m('resolveQuery', resolveQuery);
+headingIdsToBibIds = m('headingIdsToBibIds', headingIdsToBibIds);
+queryFuzzy = m('queryFuzzy', queryFuzzy);
+queryForLinkedAuthorityRecords = m('queryForLinkedAuthorityRecords', queryForLinkedAuthorityRecords);
+queryFromIndices = m('queryFromIndices', queryFromIndices);
+resolveAsteriId = m('resolveAsteriId', resolveAsteriId);
+resolveMelindaId = m('resolveMelindaId', resolveMelindaId);
 
 start();
 
