@@ -16,14 +16,24 @@ const utils = require('./lib/utils');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
-const authSyncServiceOptions = {
-  bibRecordBase: 'FIN01',
-  agentRecordBase: 'FIN11'
-};
+
+const NOOP = utils.readEnvironmentVariable('NOOP', '0');
+const noOperation = NOOP !== '0' ? true : false;
 
 const baseMap = {
   'FI-ASTERI-S': 'FIN10',
   'FI-ASTERI-N': 'FIN11'
+};
+
+const authSyncServiceOptions = {
+  bibRecordBase: 'FIN01',
+  agentRecordBase: 'FIN11',
+  noOperation,
+  baseMap
+};
+const bibSyncServiceOptions = {
+  noOperation,
+  baseMap
 };
 
 const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01', 'FIN10', 'FIN11']);
@@ -56,8 +66,8 @@ const credentials = {
 const alephRecordService = AlephRecordService.createAlephRecordService(XServerUrl, credentials);
 const alephFindService = AlephFindService.create(XServerUrl);
 
-const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, baseMap);
-const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions, baseMap);
+const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, bibSyncServiceOptions);
+const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions);
 
 start().catch(error => { console.error(error); });
 
