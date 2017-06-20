@@ -8,7 +8,7 @@ const _ = require('lodash');
 const AlephChangeListener = require('aleph-change-listener');
 
 const AlephFindService = require('./lib/aleph-find-service');
-const AlephRecordService = require('./lib/aleph-record-service');
+const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
 
@@ -57,13 +57,14 @@ const dbConfig = {
 };
 
 const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
+const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://libtest1.csc.fi:8992/API');
 
 const credentials = {
   username: utils.readEnvironmentVariable('ALEPH_CARETAKER_USER'),
   password: utils.readEnvironmentVariable('ALEPH_CARETAKER_PASS')
 };
 
-const alephRecordService = AlephRecordService.createAlephRecordService(XServerUrl, credentials);
+const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, credentials);
 const alephFindService = AlephFindService.create(XServerUrl);
 
 const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, bibSyncServiceOptions);
@@ -95,7 +96,7 @@ function onChange(changes) {
       //case 'FIN10': return authRecordSyncService.handleAuthChange(change);
       case 'FIN11': return authRecordSyncService.handleAuthChange(change);
       case 'FIN19': return authRecordSyncService.handleAuthChange(change);
-      default: throw new Error(`Could not find handler for base ${change.library}`);
+      default: return Promise.reject(new Error(`Could not find handler for base ${change.library}`));
     }
   })).catch(error => {
     console.error(error);

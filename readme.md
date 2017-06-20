@@ -55,6 +55,7 @@ The following environment variables are used to configure the system:
 | X_SERVER | x | Aleph X-server url | -
 | ALEPH_CARETAKER_USER | x | Aleph username | -
 | ALEPH_CARETAKER_PASS | x | Aleph password | -
+| MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API
 
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 

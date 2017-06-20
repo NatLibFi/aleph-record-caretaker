@@ -113,7 +113,7 @@ function createRecordFixer(rules, recordType = RecordTypes.BIBLIOGRAPHIC) {
   }
 
   function addNamePortionPunctuation(preceedingSubfield) {
-    const subfieldContainsPunctuation = /[\?"\)\]\.\-!]$/.test(preceedingSubfield.value);
+    const subfieldContainsPunctuation = /[\?"\)\]\.\-!,]$/.test(preceedingSubfield.value);
     if (!subfieldContainsPunctuation) {
       const nextValue = preceedingSubfield.value + '.';
       debug(`Updated subfield ${preceedingSubfield.code} from '${preceedingSubfield.value}' to '${nextValue}'`);
