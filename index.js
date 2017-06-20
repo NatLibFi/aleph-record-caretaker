@@ -96,7 +96,7 @@ function onChange(changes) {
       //case 'FIN10': return authRecordSyncService.handleAuthChange(change);
       case 'FIN11': return authRecordSyncService.handleAuthChange(change);
       case 'FIN19': return authRecordSyncService.handleAuthChange(change);
-      default: throw new Error(`Could not find handler for base ${change.library}`);
+      default: return Promise.reject(new Error(`Could not find handler for base ${change.library}`));
     }
   })).catch(error => {
     console.error(error);
