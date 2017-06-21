@@ -5,7 +5,7 @@ tnsnames.ora
 doc.txt
 run.sh
 .auth-sync-service-iterators
-.stash_*
+.*stash_*
 .aleph-changelistener-cursors*
 .*-cursors.json
 migrations/*iterator*
