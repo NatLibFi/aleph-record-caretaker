@@ -1,5 +1,9 @@
 // running this requires at least node 7.10.0
 /* eslint no-console: 0 */
+
+const logger = require('./lib/logger');
+logger.log('info', 'Starting aleph-record-caretaker');
+
 const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('auth-sync-service');
@@ -29,11 +33,13 @@ const authSyncServiceOptions = {
   bibRecordBase: 'FIN01',
   agentRecordBase: 'FIN11',
   noOperation,
-  baseMap
+  baseMap,
+  logger
 };
 const bibSyncServiceOptions = {
   noOperation,
-  baseMap
+  baseMap,
+  logger
 };
 
 const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01', 'FIN10', 'FIN11']);
@@ -70,24 +76,30 @@ const alephFindService = AlephFindService.create(XServerUrl);
 const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, bibSyncServiceOptions);
 const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions);
 
-start().catch(error => { console.error(error); });
+start().catch(error => { 
+  console.error(error); 
+  logger.log('error', error.message, error);
+});
 
 async function start() {
-  
+  logger.log('info', 'Connecting to oracle');
   const connection = await oracledb.getConnection(dbConfig);
 
   if (DEBUG_SQL) {
     utils.decorateConnectionWithDebug(connection);
   }
 
+  logger.log('info', 'Creating aleph changelistener');
   const alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
   
+  logger.log('info', 'Starting aleph changelistener');
   alephChangeListener.start();
   
+  logger.log('info', 'Waiting for changes');
 }
 
 function onChange(changes) {
-  debug(`Handling ${changes.length} changes.`);
+  logger.log('verbose', `Handling ${changes.length} changes.`);
   
   return serial(changes.map((change) => () => {
 
@@ -99,6 +111,7 @@ function onChange(changes) {
       default: return Promise.reject(new Error(`Could not find handler for base ${change.library}`));
     }
   })).catch(error => {
+    logger.log('error', error.message, error);
     console.error(error);
   });
 }
@@ -111,6 +124,7 @@ function serial(funcs) {
           .then(result => resolve(_.concat(all, result)))
           .catch(error => {
             console.error(error);
+            logger.log('error', error.message, error);
             resolve(_.concat(all, error));
           });
       });
