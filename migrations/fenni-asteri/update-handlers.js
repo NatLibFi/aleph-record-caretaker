@@ -117,6 +117,32 @@ function handleMelindaRecord(task) {
 
   } catch(error) {
 
+
+    if (error instanceof MigrationUtils.LinkingQueryError && error.message === 'Could not find field') {
+      // check for stuff
+      const seeFromTracingFields = fixedAuthorityRecord.fields.filter(field => _.includes(['400', '410', '411'], field.tag));
+      // normalize seeFromTracingFields
+
+      const normalizeField = (field) => {
+        return field.subfields
+          .map(sub => sub.value)
+          .map(MigrationUtils.normalizeForHeadingQuery)
+          .join(' ');
+      };
+
+      const normalizedSeeFromTracingFieldValues = seeFromTracingFields.map(normalizeField);
+      
+      const matches = melindaRecord.fields
+        .filter(field => field.subfields !== undefined)
+        .filter(field => _.includes(normalizedSeeFromTracingFieldValues, normalizeField(field)));
+
+      if (matches) {
+        console.log(`WARN MELINDA bib_id ${melindaId} \t Linked to ${asteriIdForLinking} [=(FENAU)${fenauRecordId}] by it's 'See From Tracing' (4XX) field. Not adding any links.`);
+        return;
+      }
+      
+    }
+
     errorLogger({
       record1Type: 'BIB', 
       record1: melindaRecord,
@@ -204,6 +230,31 @@ function handleFenniRecord(link) {
     });
     
   } catch(error) {
+
+
+    if (error instanceof MigrationUtils.LinkingQueryError && error.message === 'Could not find field') {
+      // check for stuff
+      const seeFromTracingFields = fixedAuthorityRecord.fields.filter(field => _.includes(['400', '410', '411'], field.tag));
+      // normalize seeFromTracingFields
+
+      const normalizeField = (field) => {
+        return field.subfields
+          .map(sub => sub.value)
+          .map(MigrationUtils.normalizeForHeadingQuery)
+          .join(' ');
+      };
+
+      const normalizedSeeFromTracingFieldValues = seeFromTracingFields.map(normalizeField);
+      
+      const matches = bibRecord.fields
+        .filter(field => field.subfields !== undefined)
+        .filter(field => _.includes(normalizedSeeFromTracingFieldValues, normalizeField(field)));
+
+      if (matches) {
+        console.log(`WARN FENNI bib_id ${bib_id} \t Linked to ${fenauRecordId} by it's 'See From Tracing' (4XX) field. Not adding any links.`);
+        return;
+      }
+    }
 
     errorLogger({
       record1Type: 'BIB', 
