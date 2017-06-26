@@ -6,7 +6,7 @@ doc.txt
 run.sh
 .auth-sync-service-iterators
 .*stash_*
-.aleph-changelistener-cursors*
+.aleph-changelistener-*
 .*-cursors.json
 migrations/*iterator*
 .libtest*
