@@ -18,11 +18,16 @@
     "marc-record-serializers": "https://github.com/petuomin/marc-record-serializers",
     "melinda-api-client": "^1.1.0",
     "oracledb": "^1.13.1",
+    "winston": "^2.3.1",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "chai": "^4.0.2",
     "mocha": "^3.4.2",
     "sinon": "^2.3.2"
+  },
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/NatLibFi/aleph-record-caretaker"
   }
 }
