@@ -7,6 +7,7 @@ const MigrationUtils = require('./migration-utils');
 const fixBibRecordField = require('./fix-bib-record');
 const fs = require('fs');
 
+
 const Constants = require('./constants');
 const TASK_TYPES = Constants.TASK_TYPES;
 
@@ -94,17 +95,9 @@ function handleAsteriRecordFix(task) {
     });
 
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
+    logFieldDiff(compactedRecord, asteriRecord);
 
-    compactedRecord.fields.map(RecordUtils.fieldToString);
-    asteriRecord.fields.map(RecordUtils.fieldToString);
-    const fieldsToRemove = _.difference(asteriRecord, compactedRecord);
-    const fieldsToAdd = _.difference(compactedRecord, asteriRecord);
-
-    console.log('handleAsteriRecordFix');
-    console.log('These fields', fieldsToRemove);
-    console.log('are replaced by', fieldsToAdd);
-
-    console.log('saving record to asteri', asteriIdForLinking);
+    console.log('DEBUG saving record to asteri', asteriIdForLinking);
     // save compactedRecord to asteri
 
 
@@ -124,24 +117,47 @@ function handleAsteriRecordFix(task) {
   }
 }
 
+function logFieldDiff(a, b) {
+  const changedRecordFields = a.fields.map(RecordUtils.fieldToString);
+  const originalRecordFields = b.fields.map(RecordUtils.fieldToString);
+  const fieldsToRemove = _.difference(originalRecordFields, changedRecordFields);
+  const fieldsToAdd = _.difference(changedRecordFields, originalRecordFields);
+
+  console.log('DEBUG These fields', fieldsToRemove);
+  console.log('DEBUG are replaced by', fieldsToAdd);
+
+}
+
+
 function handleMelindaRecord(task) {
   const {melindaRecord, melindaId, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = task;
   
   try {
+
+    const fixedRecord = MarcRecord.clone(melindaRecord);
+
     const fields = MigrationUtils.selectFieldForLinkingWithZero(melindaRecord, queryTermsForFieldSearch);
 
-    fields.forEach(field => {
+    fixedRecord.fields = melindaRecord.fields.map(field => {
+      if (!_.includes(fields, field)) {
+        return field;
+      }
   
       if (RecordUtils.isLinkedField(field)) {
-        console.log(`WARN: Melinda record ${melindaId} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
-        return;
+        console.log(`WARN Melinda record ${melindaId} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
+        return field;
       }
       
-      describeAction('MELINDA', '(FIN11)', asteriIdForLinking, fixedAuthorityRecord, melindaId, field);
+      return fixBibField('MELINDA', '(FIN11)', asteriIdForLinking, fixedAuthorityRecord, melindaId, field);
 
-      // const compactedRecord = RecordUtils.mergeDuplicateFields(melindaRecord);
     });
 
+
+    const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
+    logFieldDiff(compactedRecord, melindaRecord);
+
+    console.log('DEBUG saving record to melinda', melindaId);
+    
   } catch(error) {
 
 
@@ -191,8 +207,14 @@ function handleLinkedAsteriRecord(link) {
 
   try {
     
+    const fixedRecord = MarcRecord.clone(linkedAsteriRecord);
+
     const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedAsteriRecord, queryTermsForFieldSearch);
-    fields.forEach(field => {
+
+    fixedRecord.fields = linkedAsteriRecord.fields.map(field => {
+      if (!_.includes(fields, field)) {
+        return field;
+      }
 
       const link = `(FIN11)${asteriIdForLinking}`;
 
@@ -222,7 +244,18 @@ function handleLinkedAsteriRecord(link) {
         console.log(`WARN ASTERI auth_id ${linkedAsteriId} \t Adds $0 link:             ${changedContentWithLink}`);
       }
 
+      return fixedField;
+
     });
+
+
+    const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
+    logFieldDiff(compactedRecord, linkedAsteriRecord);
+
+    console.log('DEBUG saving record to asteri', linkedAsteriId);
+    
+
+
   } catch(error) {
 
     errorLogger({
@@ -244,25 +277,35 @@ function handleFenniRecord(link) {
   const { bibRecord, bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString } = link;
 
   try {
+
+
+    const fixedRecord = MarcRecord.clone(bibRecord);
+
     const fields = MigrationUtils.selectFieldForLinkingWithZero(bibRecord, queryTermsForFieldSearch);
 
-    fields.forEach(field => {
+    fixedRecord.fields = bibRecord.fields.map(field => {
+      if (!_.includes(fields, field)) {
+        return field;
+      }
 
       if (RecordUtils.isLinkedField(field)) {
         console.log(`WARN: FENNI record ${bib_id} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
-        return;
+        return field;
       }
 
-      describeAction('FENNI', '(FI-ASTERI-N)', asteriIdForLinking, fixedAuthorityRecord, bib_id, field);
+      return fixBibField('FENNI', '(FI-ASTERI-N)', asteriIdForLinking, fixedAuthorityRecord, bib_id, field);
 
-      // const compactedRecord = RecordUtils.mergeDuplicateFields(bibRecord);
     });
+    
+    const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
+    logFieldDiff(compactedRecord, bibRecord);
+
+    console.log('DEBUG saving record to fenni', bib_id);
     
   } catch(error) {
 
 
     if (error instanceof MigrationUtils.LinkingQueryError && error.message === 'Could not find field') {
-      // check for stuff
       const seeFromTracingFields = fixedAuthorityRecord.fields.filter(field => _.includes(['400', '410', '411'], field.tag));
       // normalize seeFromTracingFields
 
@@ -301,7 +344,7 @@ function handleFenniRecord(link) {
 
 }
 
-function describeAction(db, linkPrefix, asteriId, fixedAuthorityRecord, bib_id, field) {
+function fixBibField(db, linkPrefix, asteriId, fixedAuthorityRecord, bib_id, field) {
 
   const link = `${linkPrefix}${asteriId}`;
 
@@ -328,6 +371,8 @@ function describeAction(db, linkPrefix, asteriId, fixedAuthorityRecord, bib_id, 
     console.log(`WARN ${db} bib_id ${bib_id} \t After update it becomes:  ${changedContent}`);
     console.log(`WARN ${db} bib_id ${bib_id} \t Adds $0 link:             ${changedContentWithLink}`);
   }
+
+  return fixedField;
   
 }
 
@@ -337,8 +382,15 @@ function handleLinkedFenauRecord(link) {
 
   try {
     
+    const fixedRecord = MarcRecord.clone(linkedFenauRecord);
+
     const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedFenauRecord, queryTermsForFieldSearch);
-    fields.forEach(field => {
+    
+
+    fixedRecord.fields = linkedFenauRecord.fields.map(field => {
+      if (!_.includes(fields, field)) {
+        return field;
+      }
 
       const link = `(FI-ASTERI-N)${asteriIdForLinking}`;
 
@@ -367,8 +419,17 @@ function handleLinkedFenauRecord(link) {
         console.log(`WARN FENAU auth_id ${linkedFenauRecordId} \t After update it becomes:  ${changedContent}`);
         console.log(`WARN FENAU auth_id ${linkedFenauRecordId} \t Adds $0 link:             ${changedContentWithLink}`);
       }
+      return fixedField;
 
     });
+
+
+    const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
+    logFieldDiff(compactedRecord, linkedFenauRecord);
+
+    console.log('DEBUG saving record to fenau', linkedFenauRecordId);
+    
+
   } catch(error) {
 
     errorLogger({
