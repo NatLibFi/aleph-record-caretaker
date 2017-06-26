@@ -113,6 +113,8 @@ function handleMelindaRecord(task) {
       }
       
       describeAction('MELINDA', '(FIN11)', asteriIdForLinking, fixedAuthorityRecord, melindaId, field);
+
+      // const compactedRecord = RecordUtils.mergeDuplicateFields(melindaRecord);
     });
 
   } catch(error) {
@@ -227,6 +229,8 @@ function handleFenniRecord(link) {
       }
 
       describeAction('FENNI', '(FI-ASTERI-N)', asteriIdForLinking, fixedAuthorityRecord, bib_id, field);
+
+      // const compactedRecord = RecordUtils.mergeDuplicateFields(bibRecord);
     });
     
   } catch(error) {
