@@ -1,6 +1,7 @@
 /* eslint no-console: 0 */
 
 const _ = require('lodash');
+const MarcRecord = require('marc-record-js');
 const RecordUtils = require('../../lib/record-utils');
 const MigrationUtils = require('./migration-utils');
 const fixBibRecordField = require('./fix-bib-record');
@@ -49,10 +50,16 @@ function handleAsteriRecordFix(task) {
 
   const {asteriRecord, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, queryTermsString} = task;
   
+  const fixedRecord = MarcRecord.clone(asteriRecord);
+
   try {
     
     const fields = MigrationUtils.selectFieldForLinkingWithZero(asteriRecord, queryTermsForFieldSearch);
-    fields.forEach(field => {
+
+    fixedRecord.fields = asteriRecord.fields.map(field => {
+      if (!_.includes(fields, field)) {
+        return field;
+      }
 
       const link = `(FIN11)${asteriIdForLinking}`;
 
@@ -82,7 +89,25 @@ function handleAsteriRecordFix(task) {
         console.log(`WARN ASTERI auth_id ${asteriIdForLinking} \t Adds $0 link:             ${changedContentWithLink}`);
       }
 
+      return fixedField;
+
     });
+
+    const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
+
+    compactedRecord.fields.map(RecordUtils.fieldToString);
+    asteriRecord.fields.map(RecordUtils.fieldToString);
+    const fieldsToRemove = _.difference(asteriRecord, compactedRecord);
+    const fieldsToAdd = _.difference(compactedRecord, asteriRecord);
+
+    console.log('handleAsteriRecordFix');
+    console.log('These fields', fieldsToRemove);
+    console.log('are replaced by', fieldsToAdd);
+
+    console.log('saving record to asteri', asteriIdForLinking);
+    // save compactedRecord to asteri
+
+
   } catch(error) {
 
     errorLogger({
