@@ -21,7 +21,6 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const TASK_TYPES = Constants.TASK_TYPES;
 
-const handleLinkings = require('./update-handlers');
 const WAIT_ON_ERROR_SECONDS = 60;
 
 const dbConfig = require('./dbconfig.js');
@@ -39,6 +38,9 @@ const alephRecordService = AlephRecordService.createAlephRecordService(X_SERVER_
 
 let resolveMelindaId = ResolveMelindaIdService.create(X_SERVER_URL, ALEPH_URL, 'fin01');
 let resolveAsteriId = ResolveMelindaIdService.create(X_SERVER_URL, ALEPH_URL, 'fin11');
+
+const TaskHandler = require('./task-handler');
+const createLinkings = new TaskHandler(alephRecordService, voyagerRecordService);
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
@@ -177,8 +179,7 @@ function start() {
 async function queryForAuthId(connection, auth_id) {
   const tasks = await authIdToTasks(connection, auth_id);
   
-
-  tasks.forEach(task => handleLinkings(task));
+  tasks.forEach(task => createLinkings(task));
 
 }
 
