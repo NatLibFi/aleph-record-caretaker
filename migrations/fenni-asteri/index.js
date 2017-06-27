@@ -5,8 +5,6 @@ const _ = require('lodash');
 const oracledb = require('oracledb');
 const fs = require('fs');
 const debug = require('debug')('main');
-
-
 const MarcRecord = require('marc-record-js');
 
 const ResolveMelindaIdService = require('../../lib/record-id-resolution-service');
@@ -47,7 +45,6 @@ const DEBUG_SQL = process.env.DEBUG_SQL;
 const estimation = TimeEstimation.create();
 
 const IS_BATCH_RUN = process.argv.length !== 3;
-
 
 function m(key, orig) {
   const cachePath = require('path').join(__dirname, '..', 'cache', key);
@@ -136,6 +133,7 @@ function start() {
     startAt = 0;
   }
 
+  debug('connecting to oracle');
   oracledb.getConnection(dbConfig)
     .then(async connection => {
 
@@ -143,7 +141,6 @@ function start() {
         utils.decorateConnectionWithDebug(connection);
       }
     
-      
       if (process.argv.length === 3) {
         const auth_id = process.argv[2];
         return await queryForAuthId(connection, auth_id);
@@ -177,6 +174,7 @@ function start() {
 }
 
 async function queryForAuthId(connection, auth_id) {
+  debug('queryForAuthId', auth_id);
   const tasks = await authIdToTasks(connection, auth_id);
   
   tasks.forEach(task => createLinkings(task));
@@ -194,6 +192,7 @@ async function authIdToTasks(connection, auth_id) {
     }
 
     const links = RecordUtils.selectMelindaLinks(authorityRecord, '(FI-ASTERI-N)');
+    debug('resolveAsteriId', auth_id);
     const asteriId = await resolveAsteriId(undefined, auth_id, ' FENAU', links);
     
     const queryTermsForFieldSearch = MigrationUtils.selectNameHeadingPermutations(authorityRecord);
@@ -207,6 +206,7 @@ async function authIdToTasks(connection, auth_id) {
       fenauRecord: authorityRecord
     };
 
+    debug('loading asteri record', asteriId);
     const asteriRecord = await alephRecordService.loadRecord('FIN11', asteriId);
 
     const asteriFixTask = {
@@ -227,7 +227,7 @@ async function authIdToTasks(connection, auth_id) {
       debug('Resolving tasks for linking fenni - asteri');
       const fenniAsteriTasks = await findFenniAsteriLinkingTasks(connection, auth_id);
 
-      debug('Resolving tasks for linking melinda - asteri');
+      debug('Resolving tasks for linking melinda - asteri', fenniAsteriTasks.length);
       const melindaAsteriTasks = await findMelindaAsteriLinkingTasks(connection, fenniAsteriTasks);
       
 
@@ -249,25 +249,10 @@ async function authIdToTasks(connection, auth_id) {
       });
 
   } catch(error) {
-    if (error instanceof TypeError) {
+    if (isSystemError(error)) {
       throw error;
     }
-    if (error && error.code && error.code === 'ECONNREFUSED') {
-      throw error;
-    }
-    if (error && error.code && error.code === 'ECONNRESET') {
-      throw error;
-    }
-    if (error && error.code && error.code === 'EMFILE') {
-      throw error;
-    }
-    if (error && error.code && error.code === 'ETIMEDOUT') {
-      throw error;
-    }
-    if (error && error.code && error.code === 'EPIPE') {
-      throw error;
-    }
-
+    
     if (error && error instanceof ResolveMelindaIdService.ParseError) {
       throw error;
     }
@@ -301,6 +286,9 @@ async function findMelindaAsteriLinkingTasks(connection, fenniAsteriTasks) {
         melindaId
       };
     } catch(error)  {
+      if (isSystemError(error)) {
+        throw error;
+      }
       console.log(`ERROR FENNI bib_id ${bib_id} \t ${error.message}`);
     }
   }));
@@ -324,6 +312,10 @@ async function findAsteriAsteriLinkingTasks(connection, fenauAsteriTasks) {
       const linkedRecordAsteriId = await resolveAsteriId(undefined, linkedAuthorityRecordId, ' FENAU', links);
       return linkedRecordAsteriId;
     } catch(error) {
+      if (isSystemError(error)) {
+        throw error;
+      }
+      
       console.log(`ERROR FENAU auth_id ${linkedAuthorityRecordId} \t ${error.message}`);
     }
   }));
@@ -366,7 +358,11 @@ async function findFenauAsteriLinkingTasks(connection, auth_id) {
 async function findFenniAsteriLinkingTasks(connection, auth_id) {
 
   const fenniBibIds = await queryFromIndices(connection, auth_id);
+  if (fenniBibIds.length > 500) {
+    throw new Error(`Found way too many possible records to link (${fenniBibIds.length})`);
+  }
 
+  debug(fenniBibIds.length);
   const fenniLinks = await Promise.all(fenniBibIds.map(async fenniBibId => {
     const bibRecord = await voyagerRecordService.readBibRecord(connection, fenniBibId);
 
@@ -517,6 +513,28 @@ function resolveQuery(connection, queryTerm) {
     }).then(lists => _.flatten(lists));
 
   });
+}
+
+function isSystemError(error) {
+  if (error instanceof TypeError) {
+    return true;
+  }
+  if (error && error.code && error.code === 'ECONNREFUSED') {
+    return true;
+  }
+  if (error && error.code && error.code === 'ECONNRESET') {
+    return true;
+  }
+  if (error && error.code && error.code === 'EMFILE') {
+    return true;
+  }
+  if (error && error.code && error.code === 'ETIMEDOUT') {
+    return true;
+  }
+  if (error && error.code && error.code === 'EPIPE') {
+    return true;
+  }
+  return false;
 }
 
 // utility function for validatng the record-utils normalizer against voyager normalization.
