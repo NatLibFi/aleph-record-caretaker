@@ -136,12 +136,11 @@ describe('fix authority record', () => {
     });
 
     it('should create 100d with the year', () => {
-      
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
       expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
-      
     });
+
     it('should not duplicate year of death it if it already exists in the record', () => {
       
       recordUtils.setSubfields(fakeRecord, '100', [{code: 'a', value: 'Aakkula, Immo',}, {code:'d', value:'-2099'}]);
@@ -167,6 +166,16 @@ describe('fix authority record', () => {
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
       expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
     });
+
+    it('should also create 400d with the year', () => {
+      fakeRecord.insertField(['400', '1', '', 'a', 'Immo Aakkula']);
+      const fixed = fixAuthorityRecordYears(fakeRecord);
+      const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
+      const fixed400 = recordUtils.fieldToString(_.head(fixed.getFields('400')));
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed400).to.equal('400 1  ‡aImmo Aakkula‡d1974-2099');
+    });
+
   });
 
   describe('given record with mismatcing information', () => {
@@ -183,7 +192,6 @@ describe('fix authority record', () => {
     it('should not do anything', () => {
       const fixed = fixAuthorityRecordYears(fakeRecord);
       expect(fixed.toString()).to.eql(fakeRecord.toString());
-
     });
   });
 });

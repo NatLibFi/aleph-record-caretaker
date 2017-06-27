@@ -31,10 +31,13 @@ function fixAuthorityRecordYears(inputRecord) {
   const yearOfBirth = yearOfBirthFrom046f || birth;
   const yearOfDeath = yearOfDeathFrom046g || death;
 
-  const updatedField100dContent = create100d(yearOfBirth, yearOfDeath);
+  const updatedFieldDContent = create100d(yearOfBirth, yearOfDeath);
 
-  if (updatedField100dContent) {
-    recordUtils.setSubfield(field100, 'd', updatedField100dContent, 'j');
+  if (updatedFieldDContent) {
+    recordUtils.setSubfield(field100, 'd', updatedFieldDContent, 'j');
+    record.getFields('400').forEach(field400 => {
+      recordUtils.setSubfield(field400, 'd', updatedFieldDContent, 'j');
+    });
   }
   
   return record;
