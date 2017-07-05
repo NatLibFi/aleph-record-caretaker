@@ -93,7 +93,7 @@ function runner(lastAuthorityRecordId) {
     try {
       const percentDone = parseInt(row.AUTH_ID) / parseInt(lastAuthorityRecordId) * 100;
       const percentDone2Decimals = Math.floor(percentDone*100)/100;
-      console.log(`INFO Handling authority record ${row.AUTH_ID} / ${lastAuthorityRecordId} (${percentDone2Decimals}%)`);
+      console.log(`INFO Handling authority record ${row.AUTH_ID} / ${lastAuthorityRecordId} (${percentDone2Decimals}%) (Current time: ${Date().toString()})`);
 
       const start = process.hrtime();
       await queryForAuthId(connection, row.AUTH_ID);
@@ -176,7 +176,7 @@ function start() {
 async function queryForAuthId(connection, auth_id) {
   debug('queryForAuthId', auth_id);
   const tasks = await authIdToTasks(connection, auth_id);
-  
+  debug(`Number of tasks to handle ${tasks.length}`);
   tasks.forEach(task => createLinkings(task));
 
 }
@@ -270,8 +270,8 @@ async function findMelindaAsteriLinkingTasks(connection, fenniAsteriTasks) {
   const fennicaBibIds = fenniAsteriTasks.map(task => task.bib_id);
 
   //fennicaBibIds
-  const melindaAsteriTasks = await Promise.all(fennicaBibIds.map(async(bib_id) => {
-
+  const melindaAsteriTasks = await serialDropErrors(fennicaBibIds.map(bib_id => async () => {
+    debug(`findMelindaAsteriLinkingTasks for ${bib_id}`);
     try  {
       const fennicaRecord = await voyagerRecordService.readBibRecord(connection, bib_id);
 
@@ -358,12 +358,10 @@ async function findFenauAsteriLinkingTasks(connection, auth_id) {
 async function findFenniAsteriLinkingTasks(connection, auth_id) {
 
   const fenniBibIds = await queryFromIndices(connection, auth_id);
-  if (fenniBibIds.length > 500) {
-    throw new Error(`Found way too many possible records to link (${fenniBibIds.length})`);
-  }
 
-  debug(fenniBibIds.length);
-  const fenniLinks = await Promise.all(fenniBibIds.map(async fenniBibId => {
+  debug(`Number of possible records to link (${fenniBibIds.length})`);
+
+  const fenniLinks = await serialDropErrors(fenniBibIds.map((fenniBibId => async () => {
     const bibRecord = await voyagerRecordService.readBibRecord(connection, fenniBibId);
 
     return {
@@ -371,7 +369,7 @@ async function findFenniAsteriLinkingTasks(connection, auth_id) {
       bib_id: fenniBibId, 
       bibRecord
     };
-  }));
+  })));
 
   const fuzzyQueryFenniBibIds = await queryFuzzy(connection, auth_id);
   const fuzzyTasksWithoutIndiceTasks = _.difference(fuzzyQueryFenniBibIds, fenniBibIds);
@@ -391,6 +389,21 @@ async function findFenniAsteriLinkingTasks(connection, auth_id) {
 
 }
 
+
+function serialDropErrors(funcs) {
+  return funcs.reduce((promise, func) => {
+    return new Promise((resolve) => {
+      promise.then((all) => {
+        func()
+          .then(result => resolve(_.concat(all, result)))
+          .catch(error => {
+            console.log('SYSTEM-ERROR', error.message, error);
+            resolve(all);
+          });
+      });
+    });
+  }, Promise.resolve([]));
+}
 
 
 async function queryForLinkedAuthorityRecords(connection, auth_id) {
