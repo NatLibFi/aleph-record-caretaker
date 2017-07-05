@@ -11,6 +11,12 @@ const taskUtils = require('./task-handler-utils');
 function handleLinkedFenauRecord(fixPunctuationFromAuthField, task) {
   const { fenauRecordId, linkedFenauRecord, linkedFenauRecordId, fixedAuthorityRecord, queryTermsString } = task;
 
+
+  if (MigrationUtils.isIndexTermRecord(linkedFenauRecord)) {
+    console.log(`WARN FENAU auth_id ${linkedFenauRecordId} \t Linked record ${linkedFenauRecordId} is an index term record. Skipping.`);
+    return Promise.resolve();
+  }
+
   try {
     const fixedRecord = transformRecord(fixPunctuationFromAuthField, task);
     taskUtils.logFieldDiff(fixedRecord, linkedFenauRecord);
@@ -42,7 +48,6 @@ function transformRecord(fixPunctuationFromAuthField, task) {
   const fixedRecord = MarcRecord.clone(linkedFenauRecord);
 
   const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedFenauRecord, queryTermsForFieldSearch);
-  
 
   fixedRecord.fields = linkedFenauRecord.fields.map(field => {
     if (!_.includes(fields, field)) {

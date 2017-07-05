@@ -12,6 +12,12 @@ function handleLinkedAsteriRecord(fixPunctuationFromAuthField, link) {
   
   const { fixedAuthorityRecord, linkedAsteriRecord, linkedAsteriId, asteriIdForLinking, queryTermsForFieldSearch, queryTermsString} = link;
 
+
+  if (MigrationUtils.isIndexTermRecord(linkedAsteriRecord)) {
+    console.log(`WARN ASTERI auth_id ${linkedAsteriId} \t Linked record ${linkedAsteriId} is an index term record. Skipping.`);
+    return Promise.resolve();
+  }
+
   try {
     
     const fixedRecord = MarcRecord.clone(linkedAsteriRecord);

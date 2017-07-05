@@ -13,6 +13,13 @@ class LinkingQueryError extends Error {
   }
 }
 
+function isIndexTermRecord(record) {
+  const fields040 = record.fields.filter(field => field.tag === '040')
+
+  const is = (code, value) => sub => sub.code === code && sub.value === value;
+
+  return fields040.some(field => field.subfields.some(is('f', 'ysa')));
+}
 
 function selectNameHeadingPermutations(record) {
   const corporateName = _.head(record.getFields('110'));
@@ -62,7 +69,7 @@ function selectNameHeadingPermutations(record) {
   
   const permutationsForDSubfield = dSubfieldFragments.map((item, index) => dSubfieldFragments.slice(0, index+1)).map(values => {
     const dValue = values.join(' ');
-    const dSubfield = { code: 'd', value: dValue };
+    const dSubfield = { code: 'd', value: normalizeForHeadingQuery(dValue) };
     return dSubfield;
   });
 
@@ -453,5 +460,6 @@ module.exports = {
   setLinkedAuthorityNamePortion,
   setAuthorizedPortion,
   LinkingQueryError,
-  migrateCSubfield
+  migrateCSubfield,
+  isIndexTermRecord
 };
