@@ -56,10 +56,12 @@ function handleFenniRecord(link) {
         .filter(field => field.subfields !== undefined)
         .filter(field => _.includes(normalizedSeeFromTracingFieldValues, normalizeField(field)));
 
-      if (matches) {
-        console.log(`WARN FENNI bib_id ${bib_id} \t Linked to ${fenauRecordId} by it's 'See From Tracing' (4XX) field. Not adding any links.`);
+      if (!_.isEmpty(matches)) {
+        const seeFromTracingFieldsStr = matches.map(RecordUtils.fieldToString);
+        console.log(`WARN FENNI bib_id ${bib_id} \t Linked to ${fenauRecordId} by it's 'See From Tracing' (4XX) field (fields: ${seeFromTracingFieldsStr}). Not adding any links.`);
         return;
       }
+
     }
 
     taskUtils.errorLogger({
