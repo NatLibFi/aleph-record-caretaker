@@ -43,7 +43,7 @@ $ACBUILD_CMD environment add LD_LIBRARY_PATH /opt/oracle-instantclient
 $ACBUILD_CMD set-working-directory /opt/aleph-record-caretaker/app
 $ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'echo "127.0.0.1 $(hostname)" > /etc/hosts && cp tnsnames.ora.template tnsnames.ora && sed -i -e "s/%/|/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" tnsnames.ora'
 
-$ACBUILD_CMD set-exec -- /bin/bash -c '/usr/bin/node index.js | tee -a /opt/aleph-record-caretaker/logs/aleph-record-caretaker.log'
+$ACBUILD_CMD set-exec -- /bin/bash -c '/usr/bin/node index.js 2>&1 | tee -a /opt/aleph-record-caretaker/logs/aleph-record-caretaker.log'
 
 $ACBUILD_CMD mount add logs /opt/aleph-record-caretaker/logs
 $ACBUILD_CMD mount add data /opt/aleph-record-caretaker/data
