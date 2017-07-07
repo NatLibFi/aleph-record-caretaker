@@ -15,6 +15,7 @@
     "es6-promisify": "5.0.0",
     "isomorphic-fetch": "2.2.1",
     "marc-record-js": "0.3.1",
+    "csv-parse": "1.2.0",
     "marc-record-serializers": "https://github.com/petuomin/marc-record-serializers",
     "melinda-api-client": "1.1.0",
     "oracledb": "1.13.1",
@@ -26,7 +27,7 @@
     "mocha": "3.4.2",
     "sinon": "2.3.2"
   },
-  "repository":{
+  "repository": {
     "type": "git",
     "url": "https://github.com/NatLibFi/aleph-record-caretaker"
   }

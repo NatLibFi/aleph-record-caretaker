@@ -4,6 +4,9 @@
 const logger = require('./lib/logger');
 logger.log('info', 'Starting aleph-record-caretaker');
 
+const fs = require('fs');
+const path = require('path');
+
 const oracledb = require('oracledb');
 oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('auth-sync-service');
@@ -15,6 +18,7 @@ const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
+const MarcPunctuation = require('./lib/marc-punctuation-fix');
 
 const utils = require('./lib/utils');
 
@@ -29,17 +33,23 @@ const baseMap = {
   'FI-ASTERI-N': 'FIN11'
 };
 
+const bibRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, './lib/bib-punctuation.csv'), 'utf8'));
+const authRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, './lib/auth-punctuation.csv'), 'utf8'));
+
 const authSyncServiceOptions = {
   bibRecordBase: 'FIN01',
   agentRecordBase: 'FIN11',
   noOperation,
   baseMap,
-  logger
+  logger,
+  punctuationRulesForAuthRecord: authRules,
+  punctuationRulesForBibRecord: bibRules
 };
 const bibSyncServiceOptions = {
   noOperation,
   baseMap,
-  logger
+  logger,
+  punctuationRulesForBibRecord: bibRules
 };
 
 const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01', 'FIN10', 'FIN11']);
@@ -72,6 +82,7 @@ const credentials = {
 
 const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, credentials);
 const alephFindService = AlephFindService.create(XServerUrl);
+
 
 const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, bibSyncServiceOptions);
 const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions);

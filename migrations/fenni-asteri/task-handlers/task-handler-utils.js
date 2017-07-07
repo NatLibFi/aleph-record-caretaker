@@ -4,12 +4,12 @@ const _ = require('lodash');
 const RecordUtils = require('../../../lib/record-utils');
 const MigrationUtils = require('../migration-utils');
 const fixBibRecordField = require('../fix-bib-record');
-const MarcPunctuation = require('../marc-punctuation-fix');
+const MarcPunctuation = require('../../../lib/marc-punctuation-fix');
 const fs = require('fs');
 const path = require('path');
 const debug = require('debug')('task-handler-utils');
 
-const bibRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, '../melinda-bib-punctuation.csv'), 'utf8'));
+const bibRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, '../../../lib/bib-punctuation.csv'), 'utf8'));
 const fixPunctuationFromBibField = MarcPunctuation.createRecordFixer(bibRules);
 
 class TaskError extends Error {
