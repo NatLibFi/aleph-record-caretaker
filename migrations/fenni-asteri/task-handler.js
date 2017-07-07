@@ -5,9 +5,9 @@ const fs = require('fs');
 const Constants = require('./constants');
 const TASK_TYPES = Constants.TASK_TYPES;
 
-const MarcPunctuation = require('./marc-punctuation-fix');
+const MarcPunctuation = require('../../lib/marc-punctuation-fix');
 
-const authRules =  MarcPunctuation.readRulesFromCSV(fs.readFileSync('./melinda-auth-punctuation.csv', 'utf8'));
+const authRules =  MarcPunctuation.readRulesFromCSV(fs.readFileSync('../../lib/auth-punctuation.csv', 'utf8'));
 
 const fixPunctuationFromAuthField = MarcPunctuation.createRecordFixer(authRules, MarcPunctuation.RecordTypes.AUTHORITY);
 
