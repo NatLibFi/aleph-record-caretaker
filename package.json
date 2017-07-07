@@ -11,20 +11,20 @@
   "license": "ISC",
   "dependencies": {
     "aleph-change-listener": "https://github.com/NatLibFi/aleph-change-listener",
-    "debug": "^2.6.8",
-    "es6-promisify": "^5.0.0",
-    "isomorphic-fetch": "^2.2.1",
-    "marc-record-js": "^0.3.1",
+    "debug": "2.6.8",
+    "es6-promisify": "5.0.0",
+    "isomorphic-fetch": "2.2.1",
+    "marc-record-js": "0.3.1",
     "marc-record-serializers": "https://github.com/petuomin/marc-record-serializers",
-    "melinda-api-client": "^1.1.0",
-    "oracledb": "^1.13.1",
-    "winston": "^2.3.1",
-    "xml2js": "^0.4.17"
+    "melinda-api-client": "1.1.0",
+    "oracledb": "1.13.1",
+    "winston": "2.3.1",
+    "xml2js": "0.4.17"
   },
   "devDependencies": {
-    "chai": "^4.0.2",
-    "mocha": "^3.4.2",
-    "sinon": "^2.3.2"
+    "chai": "4.0.2",
+    "mocha": "3.4.2",
+    "sinon": "2.3.2"
   },
   "repository":{
     "type": "git",
