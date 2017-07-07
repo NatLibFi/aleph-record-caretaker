@@ -58,8 +58,9 @@ function handleMelindaRecord(task) {
         .filter(field => field.subfields !== undefined)
         .filter(field => _.includes(normalizedSeeFromTracingFieldValues, normalizeField(field)));
 
-      if (matches) {
-        console.log(`WARN MELINDA bib_id ${melindaId} \t Linked to ${asteriIdForLinking} [=(FENAU)${fenauRecordId}] by it's 'See From Tracing' (4XX) field. Not adding any links.`);
+      if (!_.isEmpty(matches)) {
+        const seeFromTracingFieldsStr = matches.map(RecordUtils.fieldToString);
+        console.log(`WARN MELINDA bib_id ${melindaId} \t Linked to ${asteriIdForLinking} [=(FENAU)${fenauRecordId}] by it's 'See From Tracing' (4XX) field (fields: ${seeFromTracingFieldsStr}). Not adding any links.`);
         return;
       }
       

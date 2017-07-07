@@ -15,7 +15,7 @@ function fixAuthorityRecordYears(inputRecord) {
   
   // parse birth/death from 100d
   const [birth, death] = recordUtils.parseYearsFrom100d(record);
-
+  
   if (yearOfBirthFrom046f && birth && yearOfBirthFrom046f !== birth) {
     throw new Error('Record has year of birth in 046f and 100d and they are mismatched');
   }

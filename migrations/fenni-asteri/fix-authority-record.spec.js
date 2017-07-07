@@ -176,6 +176,15 @@ describe('fix authority record', () => {
       expect(fixed400).to.equal('400 1  ‡aImmo Aakkula‡d1974-2099');
     });
 
+    it('should ignore punctuation', () => {
+      
+      recordUtils.setSubfields(fakeRecord, '100', [{code: 'a', value: 'Aakkula, Immo',}, {code:'d', value:'1974-2099,'}, {code:'e', value:'Tyyppi'}]);
+      
+      const fixed = fixAuthorityRecordYears(fakeRecord);
+      const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099‡eTyyppi');
+    });
+
   });
 
   describe('given record with mismatcing information', () => {
