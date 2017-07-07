@@ -18,7 +18,7 @@ const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
-const MarcPunctuation = require('./marc-punctuation-fix');
+const MarcPunctuation = require('./lib/marc-punctuation-fix');
 
 const utils = require('./lib/utils');
 
