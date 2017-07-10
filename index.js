@@ -57,13 +57,15 @@ const Z115_BASE = utils.readEnvironmentVariable('Z115Base', 'USR00');
 const POLL_INTERVAL_MS = utils.readEnvironmentVariable('POLL_INTERVAL_MS', 5000);
 const CURSOR_FILE = utils.readEnvironmentVariable('CURSOR_FILE', '.aleph-changelistener-cursors.json');
 const Z106_STASH_PREFIX = utils.readEnvironmentVariable('Z106_STASH_PREFIX', '.z106_stash');
+const CHANGES_QUEUE_FILE = utils.readEnvironmentVariable('CHANGES_QUEUE_FILE', '.aleph-changelistener-changesqueue');
 
 const options = {
   Z106Bases: Z106_BASES,
   Z115Base: Z115_BASE,
   pollIntervalMs: POLL_INTERVAL_MS,
   cursorSaveFile: CURSOR_FILE,
-  Z106StashPrefix: Z106_STASH_PREFIX
+  Z106StashPrefix: Z106_STASH_PREFIX,
+  changesQueueSaveFile: CHANGES_QUEUE_FILE
 };
 
 const dbConfig = {
