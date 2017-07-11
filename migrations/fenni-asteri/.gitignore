@@ -1,5 +1,7 @@
 node_modules
 pois
-dbconfig.js
+dbconfig*
 tnsnames.ora
 kvp_aut_bib.txt
+test-voy*
+env

@@ -5,6 +5,8 @@ const RecordUtils = require('../../../lib/record-utils');
 const MigrationUtils = require('../migration-utils');
 const fixBibRecordField = require('../fix-bib-record');
 const MarcPunctuation = require('../../../lib/marc-punctuation-fix');
+const Utils = require('../../../lib/utils');
+
 const fs = require('fs');
 const path = require('path');
 const debug = require('debug')('task-handler-utils');
@@ -19,6 +21,28 @@ class TaskError extends Error {
     this.name = 'TaskError';
     this.message = message;
   }
+}
+
+function readSettings() {
+
+  const XServerUrl = Utils.readEnvironmentVariable('MIGRATION_MELINDA_X_SERVER');
+  const melindaEndpoint = Utils.readEnvironmentVariable('MIGRATION_MELINDA_API');
+
+  const melindaCredentials = {
+    username: Utils.readEnvironmentVariable('MIGRATION_MELINDA_USER'),
+    password: Utils.readEnvironmentVariable('MIGRATION_MELINDA_PASS')
+  };
+
+  const batchcatFennica = Utils.readEnvironmentVariable('MIGRATION_BATCHCAT_FENNICA');
+  const library = Utils.readEnvironmentVariable('MIGRATION_FENNICA_LIBRARY');
+  const catLocation = Utils.readEnvironmentVariable('MIGRATION_FENNICA_CAT_LOCATION');
+
+  const fennicaCredentials = {
+    username: Utils.readEnvironmentVariable('MIGRATION_FENNICA_USER'),
+    password: Utils.readEnvironmentVariable('MIGRATION_FENNICA_PASS')
+  };
+
+  return { XServerUrl, melindaEndpoint, melindaCredentials, batchcatFennica, library, catLocation, fennicaCredentials };
 }
 
 function validateLink(field, expectedLinkValue) {
@@ -115,5 +139,6 @@ module.exports = {
   logFieldDiff,
   TaskError,
   errorLogger,
-  fixBibField
+  fixBibField,
+  readSettings
 };

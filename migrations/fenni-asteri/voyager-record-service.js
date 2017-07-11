@@ -1,3 +1,4 @@
+const fetch = require('node-fetch');
 const marc_record_converters = require('marc-record-converters');
 
 async function readAuthorityRecord(connection, recordId) {
@@ -20,7 +21,78 @@ async function readRecord(connection, database, key, recordId) {
   return record;
 }
 
+
+async function readBibRecordFromAPI(settings, recordId) {
+  requireSettings(settings, ['batchcatFennica']);
+  const requestUrl = `${settings.batchcatFennica}/bib/${recordId}`;
+  const response = await fetch(requestUrl);
+  if (response.status !== 200) {
+    throw new Error(`Failed to load bib record ${recordId}: ${response.statusText}`);
+  }
+  const recordData = await response.text();
+  
+  const record = marc_record_converters.marc21slimXML.from(recordData);
+  return record;
+}
+
+async function readAuthorityRecordFromAPI(settings, recordId) {
+  requireSettings(settings, ['batchcatFennica']);
+  const requestUrl = `${settings.batchcatFennica}/auth/${recordId}`;
+  const response = await fetch(requestUrl);
+  if (response.status !== 200) {
+    throw new Error(`Failed to load auth record ${recordId}: ${response.statusText}`);
+  }
+  const recordData = await response.text();
+  const record = marc_record_converters.marc21slimXML.from(recordData);
+  return record;
+}
+
+
+async function saveAuthRecord(settings, recordId, record) {
+  requireSettings(settings, ['batchcatFennica', 'catLocation', 'fennicaCredentials']);
+  const recordData = marc_record_converters.marc21slimXML.to(record);
+  
+  const requestUrl = `${settings.batchcatFennica}/auth/${recordId}?catLocation=${settings.catLocation}`;
+
+  const { username, password } = settings.fennicaCredentials;
+
+  const headers = new fetch.Headers({
+    'content-type': 'application/xml',
+    'Authorization': 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64')
+  });
+
+  return fetch(requestUrl, { method: 'PUT', body: recordData, headers });
+}
+
+
+async function saveBibRecord(settings, recordId, record) {
+  const recordData = marc_record_converters.marc21slimXML.to(record);
+  requireSettings(settings, ['batchcatFennica', 'library', 'catLocation', 'fennicaCredentials']);
+  const requestUrl = `${settings.batchcatFennica}/bib/${recordId}?library=${settings.library}&catLocation=${settings.catLocation}&opacSuppress=0`;
+
+  const { username, password } = settings.fennicaCredentials;
+
+  const headers = new fetch.Headers({
+    'content-type': 'application/xml',
+    'Authorization': 'Basic ' + Buffer.from(`${username}:${password}`).toString('base64')
+  });
+
+  return fetch(requestUrl, { method: 'PUT', body: recordData, headers });
+}
+
+function requireSettings(settings, arrayOfParams) {
+  arrayOfParams.forEach(key => {
+    if (settings[key] === undefined) {
+      throw new Error(`Missing required setting: ${key}`);
+    }
+  });
+}
+
 module.exports = {
   readAuthorityRecord,
-  readBibRecord
+  readBibRecord,
+  saveAuthRecord,
+  saveBibRecord,
+  readBibRecordFromAPI,
+  readAuthorityRecordFromAPI
 };

@@ -8,6 +8,10 @@ const MigrationUtils = require('../migration-utils');
 
 const taskUtils = require('./task-handler-utils');
 
+const voyagerRecordService = require('../voyager-record-service');
+const { batchcatFennica, library, catLocation, fennicaCredentials } = taskUtils.readSettings();
+const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
+
 function handleFenniRecord(link) {
   const { bibRecord, bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString } = link;
 
@@ -34,7 +38,14 @@ function handleFenniRecord(link) {
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, bibRecord);
 
-    console.log('DEBUG saving record to fenni', bib_id);
+
+    console.log(`INFO FENNI bib_id ${bib_id} \t Saving record to fenni`);
+    return voyagerRecordService.saveBibRecord(voyagerSettings, bib_id, compactedRecord).then(res => {
+      console.log(`INFO FENNI bib_id ${bib_id} \t Record saved successfully`);
+      return res;
+    });
+
+
     
   } catch(error) {
 

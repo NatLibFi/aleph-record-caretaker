@@ -8,6 +8,10 @@ const MigrationUtils = require('../migration-utils');
 
 const taskUtils = require('./task-handler-utils');
 
+const voyagerRecordService = require('../voyager-record-service');
+const { batchcatFennica, library, catLocation, fennicaCredentials } = taskUtils.readSettings();
+const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
+
 function handleLinkedFenauRecord(fixPunctuationFromAuthField, task) {
   const { fenauRecordId, linkedFenauRecord, linkedFenauRecordId, fixedAuthorityRecord, queryTermsString } = task;
 
@@ -21,9 +25,11 @@ function handleLinkedFenauRecord(fixPunctuationFromAuthField, task) {
     const fixedRecord = transformRecord(fixPunctuationFromAuthField, task);
     taskUtils.logFieldDiff(fixedRecord, linkedFenauRecord);
 
-    console.log('DEBUG saving record to fenau', linkedFenauRecordId);
-    
-    return Promise.resolve();
+    console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Saving record to fenau`);
+    return voyagerRecordService.saveAuthRecord(voyagerSettings, linkedFenauRecordId, fixedRecord).then(res => {
+      console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Record saved successfully`);
+      return res;
+    });
 
   } catch(error) {
 

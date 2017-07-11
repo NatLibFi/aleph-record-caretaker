@@ -8,6 +8,10 @@ const MigrationUtils = require('../migration-utils');
 
 const taskUtils = require('./task-handler-utils');
 
+const MelindaRecordService = require('../../../lib/melinda-record-service');
+const { XServerUrl, melindaEndpoint, melindaCredentials } = taskUtils.readSettings();
+const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
+
 function handleAsteriRecordFix(fixPunctuationFromAuthField, task) {
 
   const {asteriRecord, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, queryTermsString} = task;
@@ -61,9 +65,12 @@ function handleAsteriRecordFix(fixPunctuationFromAuthField, task) {
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, asteriRecord);
 
-    console.log('DEBUG saving record to asteri', asteriIdForLinking);
-    // save compactedRecord to asteri
+    console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Saving record to asteri`);
 
+    return melindaRecordService.saveRecord('fin11', asteriIdForLinking, compactedRecord).then(res => {
+      console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Record saved successfully`);
+      return res;
+    });
 
   } catch(error) {
 

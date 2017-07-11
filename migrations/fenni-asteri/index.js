@@ -19,6 +19,8 @@ const utils = require('./utils');
 const Constants = require('./constants');
 const TASK_TYPES = Constants.TASK_TYPES;
 
+const USE_CACHE = false;
+
 const WAIT_ON_ERROR_SECONDS = 60;
 
 const dbConfig = require('./dbconfig.js');
@@ -67,20 +69,26 @@ function mrec(key, orig) {
   };
 }
 
-voyagerRecordService.readAuthorityRecord = mrec('voyagerRecordService.readAuthorityRecord', voyagerRecordService.readAuthorityRecord);
-alephRecordService.loadRecord = mrec('alephRecordService.loadRecord', alephRecordService.loadRecord);
-voyagerRecordService.readBibRecord = mrec('voyagerRecordService.readBibRecord', voyagerRecordService.readBibRecord);
+if (USE_CACHE) {
+  /*eslint-disable */
+  voyagerRecordService.readAuthorityRecord = mrec('voyagerRecordService.readAuthorityRecord', voyagerRecordService.readAuthorityRecord);
+  alephRecordService.loadRecord = mrec('alephRecordService.loadRecord', alephRecordService.loadRecord);
+  voyagerRecordService.readBibRecord = mrec('voyagerRecordService.readBibRecord', voyagerRecordService.readBibRecord);
 
-resolveQuery = m('resolveQuery', resolveQuery);
-headingIdsToBibIds = m('headingIdsToBibIds', headingIdsToBibIds);
-queryFuzzy = m('queryFuzzy', queryFuzzy);
-queryForLinkedAuthorityRecords = m('queryForLinkedAuthorityRecords', queryForLinkedAuthorityRecords);
-queryFromIndices = m('queryFromIndices', queryFromIndices);
-resolveAsteriId = m('resolveAsteriId', resolveAsteriId);
-resolveMelindaId = m('resolveMelindaId', resolveMelindaId);
+  resolveQuery = m('resolveQuery', resolveQuery);
+  headingIdsToBibIds = m('headingIdsToBibIds', headingIdsToBibIds);
+  queryFuzzy = m('queryFuzzy', queryFuzzy);
+  queryForLinkedAuthorityRecords = m('queryForLinkedAuthorityRecords', queryForLinkedAuthorityRecords);
+  queryFromIndices = m('queryFromIndices', queryFromIndices);
+  resolveAsteriId = m('resolveAsteriId', resolveAsteriId);
+  resolveMelindaId = m('resolveMelindaId', resolveMelindaId);
+  /*eslint-enable */
+  
+}
 
 start();
 
+let count = 0;
 
 function runner(lastAuthorityRecordId) {
 
@@ -104,6 +112,13 @@ function runner(lastAuthorityRecordId) {
 
       
       fs.writeFileSync(atFile, row.AUTH_ID);
+
+      count++;
+      if (count > 3) {
+      console.log('Ok, done for now.');
+      return;
+      }
+
       const nextRow = await resultSet.getRow();
       next(connection, resultSet, nextRow);
     } catch(error) {
@@ -177,8 +192,10 @@ async function queryForAuthId(connection, auth_id) {
   debug('queryForAuthId', auth_id);
   const tasks = await authIdToTasks(connection, auth_id);
   debug(`Number of tasks to handle ${tasks.length}`);
-  tasks.forEach(task => createLinkings(task));
 
+  for (let task of tasks) {
+    await createLinkings(task);
+  }
 }
 
 async function authIdToTasks(connection, auth_id) {

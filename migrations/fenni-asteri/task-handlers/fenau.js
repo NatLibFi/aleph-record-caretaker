@@ -8,6 +8,10 @@ const MigrationUtils = require('../migration-utils');
 
 const taskUtils = require('./task-handler-utils');
 
+const voyagerRecordService = require('../voyager-record-service');
+const { batchcatFennica, library, catLocation, fennicaCredentials } = taskUtils.readSettings();
+const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
+
 // task -> Promise
 async function handleFenauRecord(task) {
 
@@ -23,9 +27,12 @@ async function handleFenauRecord(task) {
     
     taskUtils.logFieldDiff(fixedRecord, fenauRecord);
 
-    console.log('DEBUG saving record to fenau', fenauRecordId);
-    // return voyagerRecordService.saveAuthRecord...
-  
+    console.log(`INFO FENAU auth_id ${fenauRecordId} \t Saving record to fenau`);
+    return voyagerRecordService.saveAuthRecord(voyagerSettings, fenauRecordId, fixedRecord).then(res => {
+      console.log(`INFO FENAU auth_id ${fenauRecordId} \t Record saved successfully`);
+      return res;
+    });
+
   } catch(error) {
     if (error instanceof taskUtils.TaskError) {
       console.log(`ERROR: ${error.message}`);

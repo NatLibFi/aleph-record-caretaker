@@ -8,6 +8,10 @@ const MigrationUtils = require('../migration-utils');
 
 const taskUtils = require('./task-handler-utils');
 
+const MelindaRecordService = require('../../../lib/melinda-record-service');
+const { XServerUrl, melindaEndpoint, melindaCredentials } = taskUtils.readSettings();
+const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
+
 function handleMelindaRecord(task) {
   const {melindaRecord, melindaId, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = task;
   
@@ -31,11 +35,14 @@ function handleMelindaRecord(task) {
 
     });
 
-
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, melindaRecord);
 
-    console.log('DEBUG saving record to melinda', melindaId);
+    console.log(`INFO MELINDA bib_id ${melindaId} \t Saving record to melinda`);
+    return melindaRecordService.saveRecord('fin01', melindaId, compactedRecord).then(res => {
+      console.log(`INFO MELINDA bib_id ${melindaId} \t Record saved successfully`);
+      return res;
+    });
 
   } catch(error) {
 
