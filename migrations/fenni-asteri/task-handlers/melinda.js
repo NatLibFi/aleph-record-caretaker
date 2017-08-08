@@ -8,7 +8,7 @@ const MigrationUtils = require('../migration-utils');
 
 const taskUtils = require('./task-handler-utils');
 
-const MelindaRecordService = require('../../../lib/melinda-record-service');
+const MelindaRecordService = require('../melinda-record-service-fast-unsafe');
 const { XServerUrl, melindaEndpoint, melindaCredentials, dryRun } = taskUtils.readSettings();
 const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
 
