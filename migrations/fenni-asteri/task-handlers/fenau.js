@@ -75,11 +75,12 @@ function transformRecord(fenauRecord, fixedAuthorityRecord, link, fenauRecordId)
     console.log(`WARN FENAU auth_id ${fenauRecordId} \t Currently the content is: ${currentAuthorityRecordContent}`);
     console.log(`WARN FENAU auth_id ${fenauRecordId} \t After update it becomes:  ${fixedAuthorityRecordContent}`);
   }
-
-  RecordUtils.setSubfield(fixedField, '0', link, '9');
-
-  const fixedAuthorityRecordContent = RecordUtils.fieldToString(fixedField);
-  console.log(`INFO FENAU auth_id ${fenauRecordId} \t Adds $0 link without other changes:  ${fixedAuthorityRecordContent}`);
+  
+  if (!taskUtils.hasLink(fixedField, link)) {
+    RecordUtils.setSubfield(fixedField, '0', link, '9');
+    const fixedAuthorityRecordContent = RecordUtils.fieldToString(fixedField);
+    console.log(`INFO FENAU auth_id ${fenauRecordId} \t Adds $0 link without other changes:  ${fixedAuthorityRecordContent}`);
+  }
 
   return RecordUtils.mergeDuplicateFields(fixedAuthorityRecord);
 }

@@ -20,6 +20,8 @@ const Constants = require('./constants');
 const TASK_TYPES = Constants.TASK_TYPES;
 
 const USE_CACHE = false;
+const MELINDA_SAVE_PARALLELIZATION = 10;
+const MELINDA_RESOLVE_PARALLELIZATION = 20;
 
 const WAIT_ON_ERROR_SECONDS = 60;
 
@@ -185,15 +187,25 @@ async function queryForAuthId(connection, auth_id) {
   const tasks = await authIdToTasks(connection, auth_id);
   debug(`Number of tasks to handle ${tasks.length}`);
 
-  for (let task of tasks) {
+  const [melindaTasks, fenniTasks] = _.partition(tasks, isMelindaTask);
+
+  for (let task of fenniTasks) {
     await createLinkings(task);
   }
+
+  const taskGroups = _.chunk(melindaTasks, MELINDA_SAVE_PARALLELIZATION);
+  for (let tasks of taskGroups) {
+    await Promise.all(tasks.map(task => createLinkings(task)));
+  }
+  
 }
-/*
-if (task.type === TASK_TYPES.LINKED_ASTERI_ASTERI)
-if (task.type === TASK_TYPES.ASTERI_ASTERI)
-if (task.type === TASK_TYPES.MELINDA_ASTERI)  
-*/
+
+function isMelindaTask(task) {
+  if (task.type === TASK_TYPES.LINKED_ASTERI_ASTERI) return true;
+  if (task.type === TASK_TYPES.ASTERI_ASTERI) return true;
+  if (task.type === TASK_TYPES.MELINDA_ASTERI) return true;
+  return false;
+}
 
 async function authIdToTasks(connection, auth_id) {
   try {
@@ -283,29 +295,35 @@ async function findMelindaAsteriLinkingTasks(connection, fenniAsteriTasks) {
 
   const fennicaBibIds = fenniAsteriTasks.map(task => task.bib_id);
 
-  //fennicaBibIds
-  const melindaAsteriTasks = await serialDropErrors(fennicaBibIds.map(bib_id => async () => {
-    debug(`findMelindaAsteriLinkingTasks for ${bib_id}`);
-    try  {
-      const fennicaRecord = await voyagerRecordService.readBibRecord(connection, bib_id);
+  const melindaAsteriTasks = [];
+  
+  const fennicaBibIdGroups = _.chunk(fennicaBibIds, MELINDA_RESOLVE_PARALLELIZATION);
+  
+  for (let bibIdGroup of fennicaBibIdGroups) {
 
-      const links = RecordUtils.selectMelindaLinks(fennicaRecord);
-      const melindaId = await resolveMelindaId(undefined, bib_id, 'FENNI', links);
+    await Promise.all(bibIdGroup.map(async(bib_id) => {
+      debug(`findMelindaAsteriLinkingTasks for ${bib_id}`);
+      try  {
+        const fennicaRecord = await voyagerRecordService.readBibRecord(connection, bib_id);
 
-      const melindaRecord = await alephRecordService.loadRecord('FIN01', melindaId);
+        const links = RecordUtils.selectMelindaLinks(fennicaRecord);
+        const melindaId = await resolveMelindaId(undefined, bib_id, 'FENNI', links);
+        const melindaRecord = await alephRecordService.loadRecord('FIN01', melindaId);
 
-      return {
-        type: TASK_TYPES.MELINDA_ASTERI,
-        melindaRecord,
-        melindaId
-      };
-    } catch(error)  {
-      if (isSystemError(error)) {
-        throw error;
+        melindaAsteriTasks.push({
+          type: TASK_TYPES.MELINDA_ASTERI,
+          melindaRecord,
+          melindaId
+        });
+
+      } catch(error)  {
+        if (isSystemError(error)) {
+          throw error;
+        }
+        console.log(`ERROR FENNI bib_id ${bib_id} \t ${error.message}`);
       }
-      console.log(`ERROR FENNI bib_id ${bib_id} \t ${error.message}`);
-    }
-  }));
+    }));
+  }
 
   return _.compact(melindaAsteriTasks);
 
