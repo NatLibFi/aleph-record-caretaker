@@ -9,7 +9,7 @@ const MigrationUtils = require('../migration-utils');
 const taskUtils = require('./task-handler-utils');
 
 const voyagerRecordService = require('../voyager-record-service');
-const { batchcatFennica, library, catLocation, fennicaCredentials } = taskUtils.readSettings();
+const { batchcatFennica, library, catLocation, fennicaCredentials, dryRun } = taskUtils.readSettings();
 const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
 
 // task -> Promise
@@ -26,8 +26,18 @@ async function handleFenauRecord(task) {
       insertLinks(fenauRecord, link, queryTermsForFieldSearch, fenauRecordId);
     
     taskUtils.logFieldDiff(fixedRecord, fenauRecord);
+    
+    if (taskUtils.recordsEqual(fixedRecord, fenauRecord)) {
+      console.log(`INFO FENAU auth_id ${fenauRecordId} \t No changes.`);
+      return;
+    }
 
     console.log(`INFO FENAU auth_id ${fenauRecordId} \t Saving record to fenau`);
+    if (dryRun) {
+      console.log(`INFO FENAU auth_id ${fenauRecordId} \t Dry run - not saving`);
+      return;
+    }
+
     return voyagerRecordService.saveAuthRecord(voyagerSettings, fenauRecordId, fixedRecord).then(res => {
       console.log(`INFO FENAU auth_id ${fenauRecordId} \t Record saved successfully`);
       return res;
@@ -90,9 +100,12 @@ function insertLinks(fenauRecord, link, queryTermsForFieldSearch, fenauRecordId)
     if (!taskUtils.validateLink(fixedField, link)) {  
       throw new taskUtils.TaskError(`Record ${fenauRecordId} already has 0 link (${RecordUtils.fieldToString(fixedField)}) that is different from the one being added ${link}.`);
     }
-    RecordUtils.setSubfield(fixedField, '0', link, '9');
-    const changedContent = RecordUtils.fieldToString(fixedField);
-    console.log(`INFO FENAU auth_id ${fenauRecordId} \t Adds $0 link without other changes:  ${changedContent}`);
+
+    if (!taskUtils.hasLink(fixedField, link)) {
+      RecordUtils.setSubfield(fixedField, '0', link, '9');
+      const changedContent = RecordUtils.fieldToString(fixedField);
+      console.log(`INFO FENAU auth_id ${fenauRecordId} \t Adds $0 link without other changes:  ${changedContent}`);
+    }
 
     return fixedField;
   });

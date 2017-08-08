@@ -9,7 +9,7 @@ const MigrationUtils = require('../migration-utils');
 const taskUtils = require('./task-handler-utils');
 
 const voyagerRecordService = require('../voyager-record-service');
-const { batchcatFennica, library, catLocation, fennicaCredentials } = taskUtils.readSettings();
+const { batchcatFennica, library, catLocation, fennicaCredentials, dryRun } = taskUtils.readSettings();
 const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
 
 function handleLinkedFenauRecord(fixPunctuationFromAuthField, task) {
@@ -25,7 +25,17 @@ function handleLinkedFenauRecord(fixPunctuationFromAuthField, task) {
     const fixedRecord = transformRecord(fixPunctuationFromAuthField, task);
     taskUtils.logFieldDiff(fixedRecord, linkedFenauRecord);
 
+    if (taskUtils.recordsEqual(fixedRecord, linkedFenauRecord)) {
+      console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t No changes.`);
+      return;
+    }
+
     console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Saving record to fenau`);
+    if (dryRun) {
+      console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Dry run - not saving`);
+      return;
+    }
+
     return voyagerRecordService.saveAuthRecord(voyagerSettings, linkedFenauRecordId, fixedRecord).then(res => {
       console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Record saved successfully`);
       return res;
@@ -74,9 +84,11 @@ function transformRecord(fixPunctuationFromAuthField, task) {
     }
     if (_.isEqual(field, fixedField)) {
 
-      RecordUtils.setSubfield(fixedField, '0', link, '9');
-      const changedContent = RecordUtils.fieldToString(fixedField);
-      console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Adds $0 link without other changes:  ${changedContent}`);
+      if (!taskUtils.hasLink(fixedField, link)) {
+        RecordUtils.setSubfield(fixedField, '0', link, '9');
+        const changedContent = RecordUtils.fieldToString(fixedField);
+        console.log(`INFO FENAU auth_id ${linkedFenauRecordId} \t Adds $0 link without other changes:  ${changedContent}`);
+      }
     } else {
       
       const currentContent = RecordUtils.fieldToString(field);

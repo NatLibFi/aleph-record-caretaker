@@ -140,7 +140,7 @@ function start() {
     startAt = 0;
   }
 
-  debug('connecting to oracle');
+  debug('connecting to oracle', dbConfig);
   oracledb.getConnection(dbConfig)
     .then(async connection => {
 
@@ -189,6 +189,11 @@ async function queryForAuthId(connection, auth_id) {
     await createLinkings(task);
   }
 }
+/*
+if (task.type === TASK_TYPES.LINKED_ASTERI_ASTERI)
+if (task.type === TASK_TYPES.ASTERI_ASTERI)
+if (task.type === TASK_TYPES.MELINDA_ASTERI)  
+*/
 
 async function authIdToTasks(connection, auth_id) {
   try {

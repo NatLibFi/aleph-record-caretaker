@@ -23,6 +23,9 @@ class TaskError extends Error {
   }
 }
 
+const dryRun = Utils.readEnvironmentVariable('NOOP', false) != false;
+
+
 function readSettings() {
 
   const XServerUrl = Utils.readEnvironmentVariable('MIGRATION_MELINDA_X_SERVER');
@@ -42,13 +45,35 @@ function readSettings() {
     password: Utils.readEnvironmentVariable('MIGRATION_FENNICA_PASS')
   };
 
-  return { XServerUrl, melindaEndpoint, melindaCredentials, batchcatFennica, library, catLocation, fennicaCredentials };
+  return { XServerUrl, melindaEndpoint, melindaCredentials, batchcatFennica, library, catLocation, fennicaCredentials, dryRun };
+}
+
+
+function hasLink(field, expectedLinkValue) {
+  
+  // expectedLinkValue (FIN11) -> FI-ASTERI-N
+  const alternateFormat = expectedLinkValue.startsWith('(FIN11)') ? '(FI-ASTERI-N)' + expectedLinkValue.substr(7) : null;
+
+  const subfields = _.get(field, 'subfields', []);
+  if (subfields.length > 0) {
+    const subfield0 = subfields.filter(subfield => subfield.code === '0');
+    
+    if (subfield0.length === 0) {
+      return false;
+    }
+    return subfield0.some(subfield => subfield.value === expectedLinkValue || subfield.value === alternateFormat);
+  }
+  return false;
 }
 
 function validateLink(field, expectedLinkValue) {
+  
+  // expectedLinkValue (FIN11) -> FI-ASTERI-N
+  const alternateFormat = expectedLinkValue.startsWith('(FIN11)') ? '(FI-ASTERI-N)' + expectedLinkValue.substr(7) : null;
+
   const subfields = _.get(field, 'subfields', []);
   if (subfields.length > 0) {
-    return subfields.filter(subfield => subfield.code === '0').every(subfield => subfield.value === expectedLinkValue);
+    return subfields.filter(subfield => subfield.code === '0').every(subfield => subfield.value === expectedLinkValue || subfield.value === alternateFormat);
   }
   return true;
 }
@@ -111,9 +136,11 @@ function fixBibField(db, linkPrefix, asteriId, fixedAuthorityRecord, bib_id, fie
   }
 
   if (_.isEqual(field, fixedField)) {
-    RecordUtils.setSubfield(fixedField, '0', link, '9');
-    const changedContent = RecordUtils.fieldToString(fixedField);
-    console.log(`INFO ${db} bib_id ${bib_id} \t Adds $0 link without other changes:  ${changedContent}`);
+    if (!hasLink(fixedField, link)) {
+      RecordUtils.setSubfield(fixedField, '0', link, '9');
+      const changedContent = RecordUtils.fieldToString(fixedField);
+      console.log(`INFO ${db} bib_id ${bib_id} \t Adds $0 link without other changes:  ${changedContent}`);
+    }
   } else {
     
     const currentContent = RecordUtils.fieldToString(field);
@@ -134,11 +161,17 @@ function fixBibField(db, linkPrefix, asteriId, fixedAuthorityRecord, bib_id, fie
   
 }
 
+function recordsEqual(recordA, recordB) {
+  return recordA.toString() === recordB.toString();
+}
+
 module.exports = {
   validateLink,
+  hasLink,
   logFieldDiff,
   TaskError,
   errorLogger,
   fixBibField,
-  readSettings
+  readSettings,
+  recordsEqual
 };

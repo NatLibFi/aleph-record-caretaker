@@ -9,7 +9,7 @@ const MigrationUtils = require('../migration-utils');
 const taskUtils = require('./task-handler-utils');
 
 const MelindaRecordService = require('../../../lib/melinda-record-service');
-const { XServerUrl, melindaEndpoint, melindaCredentials } = taskUtils.readSettings();
+const { XServerUrl, melindaEndpoint, melindaCredentials, dryRun } = taskUtils.readSettings();
 const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
 
 function handleAsteriRecordFix(fixPunctuationFromAuthField, task) {
@@ -40,10 +40,11 @@ function handleAsteriRecordFix(fixPunctuationFromAuthField, task) {
         fixPunctuationFromAuthField(fixedField);
       }
       if (_.isEqual(field, fixedField)) {
-
-        RecordUtils.setSubfield(fixedField, '0', link, '9');
-        const changedContent = RecordUtils.fieldToString(fixedField);
-        console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Adds $0 link without other changes:  ${changedContent}`);
+        if (!taskUtils.hasLink(fixedField, link)) {
+          RecordUtils.setSubfield(fixedField, '0', link, '9');
+          const changedContent = RecordUtils.fieldToString(fixedField);
+          console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Adds $0 link without other changes:  ${changedContent}`);
+        }
       } else {
         
         const currentContent = RecordUtils.fieldToString(field);
@@ -64,9 +65,16 @@ function handleAsteriRecordFix(fixPunctuationFromAuthField, task) {
 
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, asteriRecord);
+    if (taskUtils.recordsEqual(compactedRecord, asteriRecord)) {
+      console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t No changes.`);
+      return;
+    }
 
     console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Saving record to asteri`);
-
+    if (dryRun) {
+      console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Dry run - not saving`);
+      return;
+    }
     return melindaRecordService.saveRecord('fin11', asteriIdForLinking, compactedRecord).then(res => {
       console.log(`INFO ASTERI auth_id ${asteriIdForLinking} \t Record saved successfully`);
       return res;
