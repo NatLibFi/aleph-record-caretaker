@@ -88,8 +88,6 @@ if (USE_CACHE) {
 
 start();
 
-let count = 0;
-
 function runner(lastAuthorityRecordId) {
 
   return async function next(connection, resultSet, row) {
@@ -112,12 +110,6 @@ function runner(lastAuthorityRecordId) {
 
       
       fs.writeFileSync(atFile, row.AUTH_ID);
-
-      count++;
-      if (count > 3) {
-      console.log('Ok, done for now.');
-      return;
-      }
 
       const nextRow = await resultSet.getRow();
       next(connection, resultSet, nextRow);
