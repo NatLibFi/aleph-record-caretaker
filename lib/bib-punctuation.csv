@@ -22,24 +22,24 @@ X10,$u , Affiliation (NR) or Address,N,period,"- period, if address"
 X(00|10|11),$4 , Relator code (R),NC,none,
 ,,,,,
 ,Title portion,,,,
-X(00|10),$f , Date of a work (NR),T,period,
-[678][01]0,$h , Medium (NR)   [600/700/800],T,period,
-7[01]0,$i , Relationship information [700] (R),cf,none,
-X[01]0,$k , Form subheading (R),T,period,
-X[01]0,$l , Language of a work (NR),T,comma / period,"- Finnish MARC21 comma,
+X([01]0|11),$f , Date of a work (NR),T,period,
+[678]([01]0|11),$h , Medium (NR)   [600/700/800],T,period,
+7([01]0|11),$i , Relationship information [700] (R),cf,none,
+X([01]0|11),$k , Form subheading (R),T,period,
+X([01]0|11),$l , Language of a work (NR),T,comma / period,"- Finnish MARC21 comma,
 - MARC21 period"
-[678][01]0,$m , Medium of performance for music (R)   [600/700/800],T,comma,
-X00,$n , Number of part/section of a work (R),T,"comma, period"," - depends on data?
+[678]([01]0|11),$m , Medium of performance for music (R)   [600/700/800],T,comma,
+X([01]0|11),$n , Number of part/section of a work (R),T,"comma, period"," - depends on data?
 - period, if preceded by $k, $m, $t
 - comma, if preceded by $b, $m"
-[678][10]0,$o , Arranged statement for music (NR)   [600/700/800],T,semicolon,
-X[01]0,$p , Name of part/section of a work (R),T,"comma, period, none","- depends on data?
+[678]([01]0|11),$o , Arranged statement for music (NR)   [600/700/800],T,semicolon,
+X([01]0|11),$p , Name of part/section of a work (R),T,"comma, period, none","- depends on data?
 - period if preceded by $t, $n, $p
 - comma, if preceded by $n
 - none, if preceded by $k"
-[678][01]0,$r , Key for music (NR)   [600/700/800],T,comma,
+[678]([01]0|11),$r , Key for music (NR)   [600/700/800],T,comma,
 [678]([01]0|11),$s , Version (NR)   [600/700/800],T,period,
-X[01]0,$t , Title of a work (NR),T,none,- usually first in section -> period
+X([01]0|11),$t , Title of a work (NR),T,none,- usually first in section -> period
 8([01]0|11),$v , Volume/sequential designation (NR)   [800],T,semicolon,
 [78]([01]0|11),$x , International Standard Serial Number (NR)   [700/800],T,period,
 ,,,,,
@@ -57,12 +57,12 @@ X1[01],$n , Number of part/section/meeting (R),NT,,
 6([01]0|11),$z , Geographic subdivision (R)   [600],S,none,
 ,,,,,
 ,Control subfields for whole field,,,,
-8[01]0,$w , Bibliographic record control number (R)   [800],cf,none,
-X[01]0,$0 , Authority record control number (R),cf,none,
-6[01]0,$2 , Source of heading or term (NR)   [600],cf,none,
-[678][01]0,$3 , Materials specified (NR)   [600/700/800],cf,none,
-[78][01]0,$5 , Institution to which field applies (NR)   [700/800],cf,none,
-X[01]0,$6 , Linkage (NR),cf,none,
-8[01]0,$7 , Control subfield (NR)   [800],cf,none,
-X00,$8 , Field link and sequence number (R),cf,none,
+8([01]0|11),$w , Bibliographic record control number (R)   [800],cf,none,
+X([01]0|11),$0 , Authority record control number (R),cf,none,
+6([01]0|11),$2 , Source of heading or term (NR)   [600],cf,none,
+[678]([01]0|11),$3 , Materials specified (NR)   [600/700/800],cf,none,
+[78]([01]0|11),$5 , Institution to which field applies (NR)   [700/800],cf,none,
+X([01]0|11),$6 , Linkage (NR),cf,none,
+8([01]0|11),$7 , Control subfield (NR)   [800],cf,none,
+X([01]0|11),$8 , Field link and sequence number (R),cf,none,
 X(00|10|11),$9,Local control subfield,cf,none,
