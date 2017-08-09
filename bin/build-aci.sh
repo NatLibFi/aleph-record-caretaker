@@ -66,6 +66,9 @@ $ACBUILD_CMD copy build/nodesource.pref /etc/apt/preferences.d/nodesource.pref
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install nodejs'
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE --working-dir /opt/aleph-record-caretaker/app -- /bin/bash -c 'OCI_LIB_DIR=/opt/oracle-instantclient OCI_INC_DIR=/opt/oracle-instantclient/sdk/include npm install --production'
 
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install tzdata'
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'ln -fs /usr/share/zoneinfo/Europe/Helsinki /etc/localtime'
+
 if [ $ACBUILD_ENGINE == 'chroot' ];then
   $ACBUILD_CMD run --engine chroot -- rm /etc/resolv.conf
 fi
