@@ -116,8 +116,7 @@ function runner(lastAuthorityRecordId) {
       const nextRow = await resultSet.getRow();
       next(connection, resultSet, nextRow);
     } catch(error) {
-      console.log(`SYSTEM-ERROR: ${error.message}`);
-      console.log(error.stack);
+      console.log('SYSTEM-ERROR', error.message, error);
       
       console.log(`DEBUG: restart in ${WAIT_ON_ERROR_SECONDS} seconds`);
     
@@ -170,7 +169,7 @@ function start() {
         return;
       }
 
-      console.log(`SYSTEM-ERROR: ${error.message}`);
+      console.log('SYSTEM-ERROR', error.message, error);
 
       if (IS_BATCH_RUN) {
         console.log(`DEBUG: restart in ${WAIT_ON_ERROR_SECONDS} seconds`);

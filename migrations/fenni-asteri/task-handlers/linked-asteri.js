@@ -26,6 +26,8 @@ function handleLinkedAsteriRecord(fixPunctuationFromAuthField, link) {
     
     const fixedRecord = MarcRecord.clone(linkedAsteriRecord);
 
+    taskUtils.updateUPDToY(fixedRecord);
+    
     const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedAsteriRecord, queryTermsForFieldSearch);
 
     fixedRecord.fields = linkedAsteriRecord.fields.map(field => {
