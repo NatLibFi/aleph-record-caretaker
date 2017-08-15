@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const expect = require('chai').expect;
 
+process.env.TEST = true;
+
 const MarcRecord = require('marc-record-js');
 const RecordUtils = require('../../../lib/record-utils');
 const handleFenauRecord = require('./fenau');

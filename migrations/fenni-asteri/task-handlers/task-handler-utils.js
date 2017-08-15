@@ -28,6 +28,10 @@ const dryRun = Utils.readEnvironmentVariable('NOOP', false) != false;
 
 function readSettings() {
 
+  if (process.env.TEST) {
+    return {};
+  }
+
   const XServerUrl = Utils.readEnvironmentVariable('MIGRATION_MELINDA_X_SERVER');
   const melindaEndpoint = Utils.readEnvironmentVariable('MIGRATION_MELINDA_API');
 
@@ -165,6 +169,19 @@ function recordsEqual(recordA, recordB) {
   return recordA.toString() === recordB.toString();
 }
 
+function updateUPDToY(record) {
+
+  record.fields
+    .filter(field => field.tag === 'UPD')
+    .forEach(field => {
+      field.subfields
+        .filter(subfield => subfield.code === 'a' && subfield.value === 'N')
+        .forEach(subfield => {
+          subfield.value = 'Y';
+        });
+    });
+}
+
 module.exports = {
   validateLink,
   hasLink,
@@ -173,5 +190,6 @@ module.exports = {
   errorLogger,
   fixBibField,
   readSettings,
-  recordsEqual
+  recordsEqual,
+  updateUPDToY
 };
