@@ -23,6 +23,9 @@ const USE_CACHE = false;
 const MELINDA_SAVE_PARALLELIZATION = 10;
 const MELINDA_RESOLVE_PARALLELIZATION = 20;
 
+// migrate only LIMIT fennica auths
+const LIMIT = parseInt(utils.readEnvironmentVariable('LIMIT', -1));
+
 const WAIT_ON_ERROR_SECONDS = 60;
 
 const dbConfig = require('./dbconfig.js');
@@ -88,13 +91,24 @@ if (USE_CACHE) {
   
 }
 
+let executionStopRequested = false;
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, stopping after current record');
+  executionStopRequested = true;
+});
+
 start();
+let count = 0;
 
 function runner(lastAuthorityRecordId) {
 
   return async function next(connection, resultSet, row) {
     if (row === null) {
       console.log('Done.');
+      return;
+    }
+    if (executionStopRequested) {
+      console.log('Stopping as requested');
       return;
     }
     
@@ -112,7 +126,12 @@ function runner(lastAuthorityRecordId) {
 
       
       fs.writeFileSync(atFile, row.AUTH_ID);
+      count++;
 
+      if (count === LIMIT) {
+        console.log(`The migration was limited to ${LIMIT} items. Stopping.`);
+        return;
+      }
       const nextRow = await resultSet.getRow();
       next(connection, resultSet, nextRow);
     } catch(error) {
