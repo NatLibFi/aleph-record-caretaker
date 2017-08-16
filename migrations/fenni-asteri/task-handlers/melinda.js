@@ -18,9 +18,9 @@ function transformRecord(melindaRecord, task) {
   
   const fixedRecord = MarcRecord.clone(melindaRecord);
 
-  const fields = MigrationUtils.selectFieldForLinkingWithZero(melindaRecord, queryTermsForFieldSearch);
+  const fields = MigrationUtils.selectFieldForLinkingWithZero(fixedRecord, queryTermsForFieldSearch);
 
-  fixedRecord.fields = melindaRecord.fields.map(field => {
+  fixedRecord.fields = fixedRecord.fields.map(field => {
     if (!_.includes(fields, field)) {
       return field;
     }

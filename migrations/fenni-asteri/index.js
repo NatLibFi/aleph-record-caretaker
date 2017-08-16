@@ -207,8 +207,13 @@ async function queryForAuthId(connection, auth_id) {
 
   const [melindaTasks, fenniTasks] = _.partition(tasks, isMelindaTask);
 
-  for (let task of fenniTasks) {
-    await createLinkings([task], task.type);
+  // chunk fennitasks to ensure that they are saved only once.
+  const fenniGroupedByTypeAndId = utils.chunkWith(fenniTasks, (a, b) => {
+    return a.type === b.type && a.type === TASK_TYPES.FENNI_ASTERI && a.bib_id === b.bib_id;
+  });
+
+  for (let taskList of fenniGroupedByTypeAndId) {
+    await createLinkings(taskList, _.head(taskList).type);
   }
 
   // group tasks for same type and id to ensure they are saved only once.

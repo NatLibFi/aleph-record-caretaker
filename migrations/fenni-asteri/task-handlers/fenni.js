@@ -12,29 +12,36 @@ const voyagerRecordService = require('../voyager-record-service');
 const { batchcatFennica, library, catLocation, fennicaCredentials, dryRun } = taskUtils.readSettings();
 const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
 
+function transformRecord(bibRecord, task) {
+  const { bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord } = task;
+
+  const fixedRecord = MarcRecord.clone(bibRecord);
+
+  const fields = MigrationUtils.selectFieldForLinkingWithZero(fixedRecord, queryTermsForFieldSearch);
+
+  fixedRecord.fields = fixedRecord.fields.map(field => {
+    if (!_.includes(fields, field)) {
+      return field;
+    }
+
+    if (RecordUtils.isLinkedField(field)) {
+      console.log(`WARN: FENNI record ${bib_id} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
+      return field;
+    }
+
+    return taskUtils.fixBibField('FENNI', '(FI-ASTERI-N)', asteriIdForLinking, fixedAuthorityRecord, bib_id, field);
+
+  });
+  return fixedRecord;
+}
+
 function handleFenniRecord(tasks) {
   const task = _.head(tasks);
-  const { bibRecord, bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString } = task;
+  const { bibRecord, bib_id, fixedAuthorityRecord, fenauRecordId, queryTermsString } = task;
 
   try {
 
-    const fixedRecord = MarcRecord.clone(bibRecord);
-
-    const fields = MigrationUtils.selectFieldForLinkingWithZero(bibRecord, queryTermsForFieldSearch);
-
-    fixedRecord.fields = bibRecord.fields.map(field => {
-      if (!_.includes(fields, field)) {
-        return field;
-      }
-
-      if (RecordUtils.isLinkedField(field)) {
-        console.log(`WARN: FENNI record ${bib_id} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
-        return field;
-      }
-
-      return taskUtils.fixBibField('FENNI', '(FI-ASTERI-N)', asteriIdForLinking, fixedAuthorityRecord, bib_id, field);
-
-    });
+    const fixedRecord = tasks.reduce(transformRecord, _.head(tasks).bibRecord);
     
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, bibRecord);

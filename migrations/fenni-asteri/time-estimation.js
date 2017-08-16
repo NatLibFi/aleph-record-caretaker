@@ -1,17 +1,16 @@
-const _ = require('lodash');
 
 function create() {
-  const last100ExecutionTimes = [];
+  let currentMean = 0;
+  let currentCount = 0;
 
   function elapsedTime(start){
     const [s, nano] = process.hrtime(start);    
     const total = s + nano / 1000000000;
     const elapsed = Math.round(total * 100) / 100;
 
-    last100ExecutionTimes.push(elapsed);
-    if (last100ExecutionTimes.length > 100) {
-      last100ExecutionTimes.shift();
-    }
+    const currentTotal = currentMean * currentCount + elapsed;
+    currentCount++;
+    currentMean = currentTotal / currentCount;
 
     return elapsed;
   }
@@ -28,7 +27,7 @@ function create() {
   }
 
   function getEstimations(forAmount) {
-    const timeEstimate = forAmount * _.mean(last100ExecutionTimes); // in seconds.
+    const timeEstimate = forAmount * currentMean; // in seconds.
     const readyEstimate = new Date();
     readyEstimate.setSeconds(readyEstimate.getSeconds() + timeEstimate);
     return {
@@ -44,11 +43,6 @@ function create() {
   };
 }
 
-function decorate(fn) {
-  
-}
-
 module.exports = {
-  create,
-  decorate
+  create
 };
