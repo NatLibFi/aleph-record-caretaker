@@ -12,29 +12,39 @@ const MelindaRecordService = require('../melinda-record-service-fast-unsafe');
 const { XServerUrl, melindaEndpoint, melindaCredentials, dryRun } = taskUtils.readSettings();
 const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
 
-function handleMelindaRecord(task) {
-  const {melindaRecord, melindaId, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = task;
+function transformRecord(melindaRecord, task) {
   
+  const {melindaId, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord} = task;
+  
+  const fixedRecord = MarcRecord.clone(melindaRecord);
+
+  const fields = MigrationUtils.selectFieldForLinkingWithZero(melindaRecord, queryTermsForFieldSearch);
+
+  fixedRecord.fields = melindaRecord.fields.map(field => {
+    if (!_.includes(fields, field)) {
+      return field;
+    }
+
+    if (RecordUtils.isLinkedField(field)) {
+      console.log(`WARN Melinda record ${melindaId} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
+      return field;
+    }
+    
+    return taskUtils.fixBibField('MELINDA', '(FIN11)', asteriIdForLinking, fixedAuthorityRecord, melindaId, field);
+
+  });
+
+  return fixedRecord;
+}
+
+function handleMelindaRecord(tasks) {
+  
+  const {melindaRecord, melindaId, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = _.head(tasks);
+ 
   try {
 
-    const fixedRecord = MarcRecord.clone(melindaRecord);
-
-    const fields = MigrationUtils.selectFieldForLinkingWithZero(melindaRecord, queryTermsForFieldSearch);
-
-    fixedRecord.fields = melindaRecord.fields.map(field => {
-      if (!_.includes(fields, field)) {
-        return field;
-      }
-  
-      if (RecordUtils.isLinkedField(field)) {
-        console.log(`WARN Melinda record ${melindaId} contains linked fields (cyrillic): ${RecordUtils.fieldToString(field)}`);
-        return field;
-      }
-      
-      return taskUtils.fixBibField('MELINDA', '(FIN11)', asteriIdForLinking, fixedAuthorityRecord, melindaId, field);
-
-    });
-
+    const fixedRecord = tasks.reduce(transformRecord, _.head(tasks).melindaRecord);
+    
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, melindaRecord);
     

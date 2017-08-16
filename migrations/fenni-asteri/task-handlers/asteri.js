@@ -12,8 +12,8 @@ const MelindaRecordService = require('../../../lib/melinda-record-service');
 const { XServerUrl, melindaEndpoint, melindaCredentials, dryRun } = taskUtils.readSettings();
 const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
 
-function handleAsteriRecordFix(fixPunctuationFromAuthField, task) {
-
+function handleAsteriRecordFix(fixPunctuationFromAuthField, tasks) {
+  const task = _.head(tasks);
   const {asteriRecord, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, queryTermsString} = task;
   
   const fixedRecord = MarcRecord.clone(asteriRecord);

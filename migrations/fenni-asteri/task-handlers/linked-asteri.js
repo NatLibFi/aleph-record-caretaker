@@ -12,9 +12,9 @@ const MelindaRecordService = require('../../../lib/melinda-record-service');
 const { XServerUrl, melindaEndpoint, melindaCredentials, dryRun } = taskUtils.readSettings();
 const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
 
-function handleLinkedAsteriRecord(fixPunctuationFromAuthField, link) {
-  
-  const { fixedAuthorityRecord, linkedAsteriRecord, linkedAsteriId, asteriIdForLinking, queryTermsForFieldSearch, queryTermsString} = link;
+function handleLinkedAsteriRecord(fixPunctuationFromAuthField, tasks) {
+  const task = _.head(tasks);
+  const { fixedAuthorityRecord, linkedAsteriRecord, linkedAsteriId, asteriIdForLinking, queryTermsForFieldSearch, queryTermsString} = task;
 
 
   if (MigrationUtils.isIndexTermRecord(linkedAsteriRecord)) {

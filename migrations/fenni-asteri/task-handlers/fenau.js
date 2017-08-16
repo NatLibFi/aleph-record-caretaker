@@ -13,8 +13,8 @@ const { batchcatFennica, library, catLocation, fennicaCredentials, dryRun } = ta
 const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
 
 // task -> Promise
-async function handleFenauRecord(task) {
-
+async function handleFenauRecord(tasks) {
+  const task = _.head(tasks);
   // fixedAuthorityRecord is the fenauRecord with it's years updated.
   const {asteriIdForLinking, fenauRecord, fenauRecordId, queryTermsForFieldSearch, queryTermsString, fixedAuthorityRecord} = task;
   const link = `(FI-ASTERI-N)${asteriIdForLinking}`;

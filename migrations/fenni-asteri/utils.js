@@ -46,9 +46,24 @@ async function readAllRows(resultSet, rows = []) {
   return readAllRows(resultSet, rows);
 }
 
-module.exports = {
-  readAllRows
-};
+
+// [item] -> [[item]]
+function chunkWith(arr, similarityPredicate) {
+
+  let mutableArray = _.clone(arr);
+
+  const result = [];
+
+  do {
+    const item = mutableArray.shift();
+    const similarItems = mutableArray.filter(_.partial(similarityPredicate, item));
+    result.push(_.concat(item, similarItems));
+
+    mutableArray = _.without(mutableArray, ...similarItems);
+
+  } while (mutableArray.length > 0);
+  return result;
+}
 
 
 
@@ -56,5 +71,6 @@ module.exports = {
   readAllRows,
   readEnvironmentVariable,
   decorateConnectionWithDebug,
-  elapsedTime
+  elapsedTime,
+  chunkWith
 };

@@ -208,12 +208,17 @@ async function queryForAuthId(connection, auth_id) {
   const [melindaTasks, fenniTasks] = _.partition(tasks, isMelindaTask);
 
   for (let task of fenniTasks) {
-    await createLinkings(task);
+    await createLinkings([task], task.type);
   }
 
-  const taskGroups = _.chunk(melindaTasks, MELINDA_SAVE_PARALLELIZATION);
-  for (let tasks of taskGroups) {
-    await Promise.all(tasks.map(task => createLinkings(task)));
+  // group tasks for same type and id to ensure they are saved only once.
+  const groupedByTypeAndId = utils.chunkWith(melindaTasks, (a, b) => {
+    return a.type === b.type && a.type === TASK_TYPES.MELINDA_ASTERI && a.melindaId === b.melindaId;
+  });
+
+  const taskGroups = _.chunk(groupedByTypeAndId, MELINDA_SAVE_PARALLELIZATION);
+  for (let parallelTasks of taskGroups) {
+    await Promise.all(parallelTasks.map(taskList => createLinkings(taskList, _.head(taskList).type)));
   }
   
 }

@@ -12,8 +12,9 @@ const voyagerRecordService = require('../voyager-record-service');
 const { batchcatFennica, library, catLocation, fennicaCredentials, dryRun } = taskUtils.readSettings();
 const voyagerSettings = { batchcatFennica, library, catLocation, fennicaCredentials };
 
-function handleFenniRecord(link) {
-  const { bibRecord, bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString } = link;
+function handleFenniRecord(tasks) {
+  const task = _.head(tasks);
+  const { bibRecord, bib_id, queryTermsForFieldSearch, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString } = task;
 
   try {
 

@@ -20,32 +20,32 @@ const handleFenniRecord = require('./task-handlers/fenni');
 
 function TaskHandler(alephRecordService, voyagerRecordService) {
 
-  function createLinkings(task) {
+  function createLinkings(tasks, taskType) {
 
-    if (task.type === TASK_TYPES.FENAU_ASTERI) {
-      return handleFenauRecord(task);
+    if (taskType === TASK_TYPES.FENAU_ASTERI) {
+      return handleFenauRecord(tasks);
     }
 
-    if (task.type === TASK_TYPES.LINKED_FENAU_ASTERI) {
-      return handleLinkedFenauRecord(fixPunctuationFromAuthField, task);
+    if (taskType === TASK_TYPES.LINKED_FENAU_ASTERI) {
+      return handleLinkedFenauRecord(fixPunctuationFromAuthField, tasks);
     }
 
-    if (task.type === TASK_TYPES.FENNI_ASTERI) {
-      return handleFenniRecord(task);
+    if (taskType === TASK_TYPES.FENNI_ASTERI) {
+      return handleFenniRecord(tasks);
     }
 
-    if (task.type === TASK_TYPES.LINKED_ASTERI_ASTERI) {
-      return handleLinkedAsteriRecord(fixPunctuationFromAuthField, task);
+    if (taskType === TASK_TYPES.LINKED_ASTERI_ASTERI) {
+      return handleLinkedAsteriRecord(fixPunctuationFromAuthField, tasks);
     }
 
-    if (task.type === TASK_TYPES.ASTERI_ASTERI) {
-      return handleAsteriRecordFix(fixPunctuationFromAuthField, task);
+    if (taskType === TASK_TYPES.ASTERI_ASTERI) {
+      return handleAsteriRecordFix(fixPunctuationFromAuthField, tasks);
     }
 
-    if (task.type === TASK_TYPES.MELINDA_ASTERI) {
-      return handleMelindaRecord(task);
+    if (taskType === TASK_TYPES.MELINDA_ASTERI) {
+      return handleMelindaRecord(tasks);
     }
-    throw new Error(`Unable to find handler for task ${task.type}`);
+    throw new Error(`Unable to find handler for task ${taskType}`);
   }
 
   return createLinkings;
