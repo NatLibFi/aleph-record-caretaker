@@ -25,6 +25,7 @@ const MELINDA_RESOLVE_PARALLELIZATION = 20;
 
 // migrate only LIMIT fennica auths
 const LIMIT = parseInt(utils.readEnvironmentVariable('LIMIT', -1));
+const SKIP_ON_ERROR = utils.readEnvironmentVariable('SKIP_ON_ERROR', false) !== false;
 
 const WAIT_ON_ERROR_SECONDS = 60;
 
@@ -138,7 +139,12 @@ function runner(lastAuthorityRecordId) {
       console.log('SYSTEM-ERROR', error.message, error);
       
       console.log(`DEBUG: restart in ${WAIT_ON_ERROR_SECONDS} seconds`);
-    
+      if (SKIP_ON_ERROR) {
+        const failedAuthId = parseInt(row.AUTH_ID);
+        console.log(`WARN: Skipping failed record ${failedAuthId}`);
+        fs.writeFileSync(atFile, failedAuthId+1);
+      }
+
       setTimeout(() => {
         start();
       }, WAIT_ON_ERROR_SECONDS * 1000);
