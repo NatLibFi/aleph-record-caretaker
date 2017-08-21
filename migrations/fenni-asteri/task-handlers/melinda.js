@@ -91,12 +91,12 @@ function handleMelindaRecord(tasks) {
       return getConnection().then(connection => {
     
         const seq = moment().format('YYYYMMDDHHmm') + '%';
-        return connection.execute('SELECT * FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE = :sequence', [melindaId, seq], {resultSet: true})
+        return connection.execute('SELECT * FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE :sequence', [melindaId, seq], {resultSet: true})
         .then(result => {
           return utils.readAllRows(result.resultSet);
         }).then(rows => {
           console.log(`INFO MELINDA removing rows from indexing-queue: ${JSON.stringify(rows)}`);
-          return connection.execute('DELETE FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE = :sequence', [melindaId, seq]);
+          return connection.execute('DELETE FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE :sequence', [melindaId, seq]);
         }).then(() => connection.close());
       }).then(() => res);
 
