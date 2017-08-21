@@ -48,6 +48,19 @@ function transformRecord(melindaRecord, task) {
   return fixedRecord;
 }
 
+let conn;
+function getConnection() {
+
+  if (conn !== undefined) {
+    return Promise.resolve(conn);
+  } else {
+    return oracledb.getConnection(dbConfig).then(connection => {
+      conn = connection;
+      return conn;
+    });
+  }    
+}
+
 function handleMelindaRecord(tasks) {
   
   const {melindaRecord, melindaId, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = _.head(tasks);
@@ -75,7 +88,7 @@ function handleMelindaRecord(tasks) {
     }).then((res) => {
       // remove stuff from index
 
-      return oracledb.getConnection(dbConfig).then(connection => {
+      return getConnection().then(connection => {
     
         const seq = moment().format('YYYYMMDDHHmm') + '%';
         return connection.execute('SELECT * FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE = :sequence', [melindaId, seq], {resultSet: true})
