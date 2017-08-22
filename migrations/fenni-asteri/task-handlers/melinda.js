@@ -97,14 +97,14 @@ function handleMelindaRecord(tasks) {
         }).then(rows => {
           console.log(`INFO MELINDA removing rows from indexing-queue: ${JSON.stringify(rows)}`);
           return connection.execute('DELETE FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE :sequence', [melindaId, seq]);
-        });
+        }).then(() => connection.commit());
       }).then(() => res);
 
     });
 
   } catch(error) {
 
-
+    error.melindaId = melindaId;
     if (error instanceof MigrationUtils.LinkingQueryError && error.message === 'Could not find field') {
       // check for stuff
       const seeFromTracingFields = fixedAuthorityRecord.fields.filter(field => _.includes(['400', '410', '411'], field.tag));
