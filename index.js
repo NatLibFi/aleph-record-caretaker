@@ -56,7 +56,7 @@ const bibSyncServiceOptions = {
 };
 
 const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01', 'FIN10', 'FIN11']);
-const Z115_BASE = utils.readEnvironmentVariable('Z115Base', 'USR00');
+const Z115_BASE = utils.readEnvironmentVariable('Z115_BASE', 'USR00');
 const POLL_INTERVAL_MS = utils.readEnvironmentVariable('POLL_INTERVAL_MS', 5000);
 const CURSOR_FILE = utils.readEnvironmentVariable('CURSOR_FILE', '.aleph-changelistener-cursors.json');
 const Z106_STASH_PREFIX = utils.readEnvironmentVariable('Z106_STASH_PREFIX', '.z106_stash');
