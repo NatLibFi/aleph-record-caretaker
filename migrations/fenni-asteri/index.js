@@ -219,6 +219,7 @@ async function queryForAuthId(connection, auth_id) {
   });
 
   for (let taskList of fenniGroupedByTypeAndId) {
+    taskList = taskList.filter(task => task !== undefined);
     if (taskList.length > 0) {
       await createLinkings(taskList, _.head(taskList).type);
     }
@@ -233,6 +234,8 @@ async function queryForAuthId(connection, auth_id) {
   for (let parallelTasks of taskGroups) {
     
     await Promise.all(parallelTasks.map(taskList => {
+      taskList = taskList.filter(task => task !== undefined);
+
       if (taskList.length > 0) {
         return createLinkings(taskList, _.head(taskList).type);
       }
