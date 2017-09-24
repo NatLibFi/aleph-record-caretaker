@@ -1,8 +1,13 @@
 // running this requires at least node 7.10.0
 /* eslint no-console: 0 */
 
+const utils = require('./lib/utils');
+const LOG_LEVEL = utils.readEnvironmentVariable('LOG_LEVEL', 'info');
+
 const logger = require('./lib/logger');
+logger.level = LOG_LEVEL;
 logger.log('info', 'Starting aleph-record-caretaker');
+
 
 const fs = require('fs');
 const path = require('path');
@@ -20,7 +25,6 @@ const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
 const MarcPunctuation = require('./lib/marc-punctuation-fix');
 
-const utils = require('./lib/utils');
 
 const DEBUG_SQL = process.env.DEBUG_SQL;
 
