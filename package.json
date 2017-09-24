@@ -10,7 +10,7 @@
   "author": "Pasi Tuominen <pasi.tuominen@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "aleph-change-listener": "https://github.com/NatLibFi/aleph-change-listener#4526ca63dac4a197d32a7d95d3f96a8fd63a9fb7",
+    "aleph-change-listener": "https://github.com/NatLibFi/aleph-change-listener#5c5b6f7e25cad6300218b15dd09591ab1404f290",
     "debug": "2.6.8",
     "es6-promisify": "5.0.0",
     "isomorphic-fetch": "2.2.1",
