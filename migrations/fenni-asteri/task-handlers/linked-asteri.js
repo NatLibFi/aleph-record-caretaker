@@ -26,7 +26,7 @@ function handleLinkedAsteriRecord(fixPunctuationFromAuthField, tasks) {
     
     const fixedRecord = MarcRecord.clone(linkedAsteriRecord);
 
-    taskUtils.updateUPDToY(fixedRecord);
+//*    taskUtils.updateUPDToY(fixedRecord);
     
     const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(linkedAsteriRecord, queryTermsForFieldSearch);
 
@@ -75,6 +75,8 @@ function handleLinkedAsteriRecord(fixPunctuationFromAuthField, tasks) {
 
     const compactedRecord = RecordUtils.mergeDuplicateFields(fixedRecord);
     taskUtils.logFieldDiff(compactedRecord, linkedAsteriRecord);
+
+    taskUtils.updateUPDToY(compactedRecord);  
 
     if (taskUtils.recordsEqual(compactedRecord, linkedAsteriRecord)) {
       console.log(`INFO ASTERI auth_id ${linkedAsteriId} \t No changes.`);

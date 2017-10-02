@@ -171,6 +171,7 @@ function recordsEqual(recordA, recordB) {
 
 function updateUPDToY(record) {
 
+//  console.log(`INFO Updating UPD field`);
   record.fields
     .filter(field => field.tag === 'UPD')
     .forEach(field => {
