@@ -1,6 +1,14 @@
 const _ = require('lodash');
+const fs = require('fs');
+
 const MarcRecord = require('marc-record-js');
 const recordUtils = require('../../lib/record-utils');
+
+const MarcPunctuation = require('../../lib/marc-punctuation-fix');
+
+const authRules =  MarcPunctuation.readRulesFromCSV(fs.readFileSync('../../lib/auth-punctuation.csv', 'utf8'));
+
+const fixPunctuationFromAuthField = MarcPunctuation.createRecordFixer(authRules, MarcPunctuation.RecordTypes.AUTHORITY);
 
 function fixAuthorityRecordYears(inputRecord) {
   const record = new MarcRecord(inputRecord);
@@ -35,8 +43,10 @@ function fixAuthorityRecordYears(inputRecord) {
 
   if (updatedFieldDContent) {
     recordUtils.setSubfield(field100, 'd', updatedFieldDContent, 'j');
+    fixPunctuationFromAuthField(field100);
     record.getFields('400').forEach(field400 => {
       recordUtils.setSubfield(field400, 'd', updatedFieldDContent, 'j');
+      fixPunctuationFromAuthField(field400);
     });
   }
   
