@@ -76,6 +76,44 @@ describe('MigrationUtils', () => {
 
   });
 
+
+  describe('selectFieldFromAuthorityRecordForLinkingWithZero', () => {
+    let fakeRecord;
+    beforeEach(() => fakeRecord = createFakeRecord());
+
+    it('should return an array of fields that match the query terms, and no longer terms', () => {
+
+    fakeRecord.appendField(RecordUtils.stringToField('510 2  ‡aTampereen yliopisto.‡bHallintotieteiden laitos'));
+    fakeRecord.appendField(RecordUtils.stringToField('510 2  ‡aTampereen yliopisto.‡bHallintotieteiden laitos.‡bAluetiede'));
+
+    const fakeQueryTerms = [
+        [{code: 'a', value: 'TAMPEREEN YLIOPISTO'}, {code: 'b', value: 'HALLINTOTIETEIDEN LAITOS'}]
+      ];
+
+    const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(fakeRecord, fakeQueryTerms);
+    
+    expect(fields).to.be.instanceof(Array);
+    expect(fields).length.to.be(1);
+    });
+
+
+    it('should return an array of fields that match the query terms, and no shorter terms', () => {
+
+    fakeRecord.appendField(RecordUtils.stringToField('510 2  ‡aTampereen yliopisto.‡bHallintotieteiden laitos'));
+    fakeRecord.appendField(RecordUtils.stringToField('510 2  ‡aTampereen yliopisto.‡bHallintotieteiden laitos.‡bAluetiede'));
+
+    const fakeQueryTerms = [
+        [{code: 'a', value: 'TAMPEREEN YLIOPISTO'}, {code: 'b', value: 'HALLINTOTIETEIDEN LAITOS'}, {code: 'b', value: 'ALUETIEDE'}]
+      ];
+
+    const fields = MigrationUtils.selectFieldFromAuthorityRecordForLinkingWithZero(fakeRecord, fakeQueryTerms);
+    
+    expect(fields).to.be.instanceof(Array);
+    expect(fields).length.to.be(1);
+    });
+
+  });
+
   describe('selectFieldForLinkingWithZero', () => {
     let fakeRecord;
     beforeEach(() => fakeRecord = createFakeRecord());
