@@ -37,7 +37,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-');
       
     });
     it('should not duplicate it if it already exists in the record', () => {
@@ -46,7 +46,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-');
     });
 
     it('should add the birth year if there is only year of death', () => {
@@ -55,7 +55,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
     });
   });
 
@@ -69,7 +69,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d-2099');
       
     });
     it('should not duplicate it if it already exists in the record', () => {
@@ -78,7 +78,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d-2099');
     });
     it('should add the death year if there is only year of birth', () => {
       
@@ -86,18 +86,18 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
     });
 
-    it('should add the death year if there is only year of birth', () => {
+    it('should not update birth/death dates that include non-numbers', () => {
       
-      recordUtils.setSubfields(fakeRecord, '100', [{code: 'a', value: 'Hamnius, Carl',}, {code:'d', value:'kuollut 1696'}]);
+      recordUtils.setSubfields(fakeRecord, '100', [{code: 'a', value: 'Hamnius, Carl,',}, {code:'d', value:'kuollut 1696'}]);
       recordUtils.setSubfields(fakeRecord, '046', [{code: 'g', value: '1696',}]);
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
       
-      expect(fixed100).to.equal('100 1  ‡aHamnius, Carl‡dkuollut 1696');
+      expect(fixed100).to.equal('100 1  ‡aHamnius, Carl,‡dkuollut 1696');
     });
     
   });
@@ -113,7 +113,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡bfakecontent‡d-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡bfakecontent,‡d-2099');
     });
     
     it('should add the d subfield before j subfield', () => {
@@ -125,7 +125,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡bfakecontent‡d-2099‡jfakerelation');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡bfakecontent,‡d-2099,‡jfakerelation');
     });
   });
 
@@ -138,7 +138,7 @@ describe('fix authority record', () => {
     it('should create 100d with the year', () => {
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
     });
 
     it('should not duplicate year of death it if it already exists in the record', () => {
@@ -147,7 +147,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
     });
     it('should not duplicate year of birth it if it already exists in the record', () => {
       
@@ -155,7 +155,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
     });
     
     it('should do nothing if everyting is ok already', () => {
@@ -164,7 +164,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
     });
 
     it('should also create 400d with the year', () => {
@@ -172,8 +172,8 @@ describe('fix authority record', () => {
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
       const fixed400 = recordUtils.fieldToString(_.head(fixed.getFields('400')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099');
-      expect(fixed400).to.equal('400 1  ‡aImmo Aakkula‡d1974-2099');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099');
+      expect(fixed400).to.equal('400 1  ‡aImmo Aakkula,‡d1974-2099');
     });
 
     it('should ignore punctuation', () => {
@@ -182,7 +182,7 @@ describe('fix authority record', () => {
       
       const fixed = fixAuthorityRecordYears(fakeRecord);
       const fixed100 = recordUtils.fieldToString(_.head(fixed.getFields('100')));
-      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo‡d1974-2099‡eTyyppi');
+      expect(fixed100).to.equal('100 1  ‡aAakkula, Immo,‡d1974-2099,‡eTyyppi');
     });
 
   });
