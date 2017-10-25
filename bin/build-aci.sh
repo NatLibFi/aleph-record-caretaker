@@ -14,7 +14,7 @@ ACI_NAME_GROUP="melinda"
 ACI_NAME="aleph-record-caretaker-ubuntu"
 ACI_VERSION="1.0.0"
 
-rm -rf build && mkdir build &&
+rm -rf build && mkdir -p build/app &&
 ls | grep -v build | xargs -i cp -r --preserve=all {} build/app/ &&
 
 cat <<EOF > build/nodesource.list
