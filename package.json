@@ -1,5 +1,5 @@
 {
-  "name": "aleph-record-caretaker",
+  "name": "@natlibfi/aleph-record-caretaker",
   "version": "1.0.0",
   "description": "A service that applies Melinda-specific conversions when records change in Aleph",
   "author": {
@@ -17,7 +17,8 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha lib/*.spec.js",
-    "test:watch": "mocha lib/*.spec.js -w"
+    "test:watch": "mocha lib/*.spec.js -w",
+    "publish-to-npm": "npm test && npm publish --access=public"
   },
   "dependencies": {
     "aleph-change-listener": "https://github.com/NatLibFi/aleph-change-listener#97393ba3812a5e3a864cd3556bda1bcffe5b276a",
