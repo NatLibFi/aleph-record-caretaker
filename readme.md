@@ -1,4 +1,4 @@
-# A service that applies Melinda-specific conversions when records change in Aleph
+# A service that applies Melinda-specific conversions when records change in Aleph [![NPM Version](https://img.shields.io/npm/v/@natlibfi/aleph-record-caretaker.svg)](https://npmjs.org/package/aleph-record-caretaker) [![Build Status](https://travis-ci.org/NatLibFi/aleph-record-caretaker.svg)](https://travis-ci.org/NatLibFi/aleph-record-caretaker)
 
 # Installation
 
