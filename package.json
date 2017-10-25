@@ -1,14 +1,24 @@
 {
   "name": "aleph-record-caretaker",
   "version": "1.0.0",
-  "description": "",
+  "description": "A service that applies Melinda-specific conversions when records change in Aleph",
+  "author": {
+    "name": "The National Library of Finland"
+  },
+  "homepage": "https://github.com/NatLibFi/aleph-record-caretaker",
+  "bugs": {
+    "url": "https://github.com/NatLibFi/aleph-record-caretaker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:NatLibFi/aleph-record-caretaker.git"
+  },
+  "license": "Apache-2.0",
   "main": "index.js",
   "scripts": {
     "test": "mocha lib/*.spec.js",
     "test:watch": "mocha lib/*.spec.js -w"
   },
-  "author": "Pasi Tuominen <pasi.tuominen@gmail.com>",
-  "license": "ISC",
   "dependencies": {
     "aleph-change-listener": "https://github.com/NatLibFi/aleph-change-listener#97393ba3812a5e3a864cd3556bda1bcffe5b276a",
     "debug": "2.6.8",
@@ -26,9 +36,5 @@
     "chai": "4.0.2",
     "mocha": "3.4.2",
     "sinon": "2.3.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/NatLibFi/aleph-record-caretaker"
   }
 }

@@ -1,4 +1,4 @@
-
+# A service that applies Melinda-specific conversions when records change in Aleph
 
 # Installation
 
@@ -60,3 +60,9 @@ The following environment variables are used to configure the system:
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
 The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora file. With above tnsnames.ora it should be "tunnel".
+
+## License and copyright
+
+Copyright (c) 2017 **University Of Helsinki (The National Library Of Finland)**
+
+This project's source code is licensed under the terms of **Apache License 2.0**.
