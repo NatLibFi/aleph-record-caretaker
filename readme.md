@@ -56,6 +56,9 @@ The following environment variables are used to configure the system:
 | ALEPH_CARETAKER_USER | x | Aleph username | -
 | ALEPH_CARETAKER_PASS | x | Aleph password | -
 | MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API
+| NOOP |  | run without making changes to database | 0
+| NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0
+| ONLINE | times to run the service | | '00:00-21:55, 22:30-24:00' | 
 
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
