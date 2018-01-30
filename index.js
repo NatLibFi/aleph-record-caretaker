@@ -26,7 +26,7 @@ oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('main');
 const _ = require('lodash');
 
-const AlephChangeListener = require('aleph-change-listener');
+const AlephChangeListener = require('@natlibfi/aleph-change-listener');
 
 const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
