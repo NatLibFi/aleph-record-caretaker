@@ -1,6 +1,6 @@
 {
   "name": "@natlibfi/aleph-record-caretaker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A service that applies Melinda-specific conversions when records change in Aleph",
   "author": {
     "name": "The National Library of Finland"
