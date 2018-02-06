@@ -26,13 +26,13 @@ oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('main');
 const _ = require('lodash');
 
-const AlephChangeListener = require('aleph-change-listener');
+const AlephChangeListener = require('@natlibfi/aleph-change-listener');
 
 const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
-const MarcPunctuation = require('./lib/marc-punctuation-fix');
+const MarcPunctuation = require('@natlibfi/melinda-marc-record-utils/dist/punctuation');
 
 const utils = require('./lib/utils');
 
@@ -50,8 +50,8 @@ const baseMap = {
   'FI-ASTERI-N': 'FIN11'
 };
 
-const bibRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, './lib/bib-punctuation.csv'), 'utf8'));
-const authRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, './lib/auth-punctuation.csv'), 'utf8'));
+const bibRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/bib-punctuation.json'));
+const authRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/auth-punctuation.json'));
 
 const authSyncServiceOptions = {
   bibRecordBase: 'FIN01',
