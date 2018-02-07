@@ -45,6 +45,9 @@ const onlineTimes = utils.parseTimeRanges(ONLINE);
 const NOOP = utils.readEnvironmentVariable('NOOP', '0');
 const noOperation = NOOP !== '0' ? true : false;
 
+const NOOP_BIBCHANGE = utils.readEnvironmentVariable('NOOP_BIBCHANGE', '0');
+const noOperationBibChange = (NOOP !== '0' || NOOP_BIBCHANGE !== '0') ? true : false;
+
 const baseMap = {
   'FI-ASTERI-S': 'FIN10',
   'FI-ASTERI-N': 'FIN11'
@@ -63,7 +66,7 @@ const authSyncServiceOptions = {
   punctuationRulesForBibRecord: bibRules
 };
 const bibSyncServiceOptions = {
-  noOperation,
+  noOperationBibChange,
   baseMap,
   logger,
   punctuationRulesForBibRecord: bibRules
