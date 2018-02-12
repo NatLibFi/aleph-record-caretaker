@@ -1,4 +1,4 @@
-
+# A service that applies Melinda-specific conversions when records change in Aleph [![NPM Version](https://img.shields.io/npm/v/@natlibfi/aleph-record-caretaker.svg)](https://npmjs.org/package/aleph-record-caretaker) [![Build Status](https://travis-ci.org/NatLibFi/aleph-record-caretaker.svg)](https://travis-ci.org/NatLibFi/aleph-record-caretaker)
 
 # Installation
 
@@ -56,7 +56,16 @@ The following environment variables are used to configure the system:
 | ALEPH_CARETAKER_USER | x | Aleph username | -
 | ALEPH_CARETAKER_PASS | x | Aleph password | -
 | MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API
+| NOOP |  | run without making changes to database | 0
+| NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0
+| ONLINE | | times to run the service | '00:00-21:55, 22:30-24:00' | 
 
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
 The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora file. With above tnsnames.ora it should be "tunnel".
+
+## License and copyright
+
+Copyright (c) 2017 **University Of Helsinki (The National Library Of Finland)**
+
+This project's source code is licensed under the terms of **Apache License 2.0**.

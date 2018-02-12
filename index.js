@@ -1,4 +1,18 @@
-// running this requires at least node 7.10.0
+/**
+ * Copyright 2017 University Of Helsinki (The National Library Of Finland)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */// running this requires at least node 7.10.0
 /* eslint no-console: 0 */
 
 const logger = require('./lib/logger');
@@ -12,13 +26,13 @@ oracledb.outFormat = oracledb.OBJECT;
 const debug = require('debug')('main');
 const _ = require('lodash');
 
-const AlephChangeListener = require('aleph-change-listener');
+const AlephChangeListener = require('@natlibfi/aleph-change-listener');
 
 const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
-const MarcPunctuation = require('./lib/marc-punctuation-fix');
+const MarcPunctuation = require('@natlibfi/melinda-marc-record-utils/dist/punctuation');
 
 const utils = require('./lib/utils');
 
@@ -31,13 +45,16 @@ const onlineTimes = utils.parseTimeRanges(ONLINE);
 const NOOP = utils.readEnvironmentVariable('NOOP', '0');
 const noOperation = NOOP !== '0' ? true : false;
 
+const NOOP_BIBCHANGE = utils.readEnvironmentVariable('NOOP_BIBCHANGE', '0');
+const noOperationBibChange = (NOOP !== '0' || NOOP_BIBCHANGE !== '0') ? true : false;
+
 const baseMap = {
   'FI-ASTERI-S': 'FIN10',
   'FI-ASTERI-N': 'FIN11'
 };
 
-const bibRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, './lib/bib-punctuation.csv'), 'utf8'));
-const authRules = MarcPunctuation.readRulesFromCSV(fs.readFileSync(path.resolve(__dirname, './lib/auth-punctuation.csv'), 'utf8'));
+const bibRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/bib-punctuation.json'));
+const authRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/auth-punctuation.json'));
 
 const authSyncServiceOptions = {
   bibRecordBase: 'FIN01',
@@ -49,14 +66,14 @@ const authSyncServiceOptions = {
   punctuationRulesForBibRecord: bibRules
 };
 const bibSyncServiceOptions = {
-  noOperation,
+  noOperationBibChange,
   baseMap,
   logger,
   punctuationRulesForBibRecord: bibRules
 };
 
 const Z106_BASES = utils.readArrayEnvironmentVariable('Z106_BASES', ['FIN01', 'FIN10', 'FIN11']);
-const Z115_BASE = utils.readEnvironmentVariable('Z115Base', 'USR00');
+const Z115_BASE = utils.readEnvironmentVariable('Z115_BASE', 'USR00');
 const POLL_INTERVAL_MS = utils.readEnvironmentVariable('POLL_INTERVAL_MS', 5000);
 const CURSOR_FILE = utils.readEnvironmentVariable('CURSOR_FILE', '.aleph-changelistener-cursors.json');
 const Z106_STASH_PREFIX = utils.readEnvironmentVariable('Z106_STASH_PREFIX', '.z106_stash');

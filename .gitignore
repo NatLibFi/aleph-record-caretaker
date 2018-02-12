@@ -1,3 +1,4 @@
+.acbuild
 build
 node_modules
 dbconfig.js

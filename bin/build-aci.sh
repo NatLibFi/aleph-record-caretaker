@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 ACBUILD_CMD="acbuild --no-history"
 
 if [ -z $ACBUILD_ENGINE ];then
@@ -14,7 +16,7 @@ ACI_NAME_GROUP="melinda"
 ACI_NAME="aleph-record-caretaker-ubuntu"
 ACI_VERSION="1.0.0"
 
-rm -rf build && mkdir build &&
+rm -rf build && mkdir -p build/app &&
 ls | grep -v build | xargs -i cp -r --preserve=all {} build/app/ &&
 
 cat <<EOF > build/nodesource.list
@@ -56,7 +58,7 @@ if [ $ACBUILD_ENGINE == 'chroot' ];then
   $ACBUILD_CMD run --engine chroot -- /bin/bash -c "echo '$(grep -m1 -E ^nameserver /etc/resolv.conf)' > /etc/resolv.conf"
 fi
 
-$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- ln -s /opt/oracle-instantclient/libclntsh.so.12.1 /opt/oracle-instantclient/libclntsh.so
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- ln -fs /opt/oracle-instantclient/libclntsh.so.12.1 /opt/oracle-instantclient/libclntsh.so
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install apt-transport-https curl git python make gcc g++ libaio1'
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -'
 
