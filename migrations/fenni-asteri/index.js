@@ -233,7 +233,10 @@ async function queryForAuthId(connection, auth_id) {
   });
 
   for (let taskList of fenniGroupedByTypeAndId) {
-    await createLinkings(taskList, _.head(taskList).type);
+    taskList = taskList.filter(task => task !== undefined);
+    if (taskList.length > 0) {
+      await createLinkings(taskList, _.head(taskList).type);
+    }
   }
 
   // group tasks for same type and id to ensure they are saved only once.
@@ -243,7 +246,14 @@ async function queryForAuthId(connection, auth_id) {
 
   const taskGroups = _.chunk(groupedByTypeAndId, MELINDA_SAVE_PARALLELIZATION);
   for (let parallelTasks of taskGroups) {
-    await Promise.all(parallelTasks.map(taskList => createLinkings(taskList, _.head(taskList).type)));
+    
+    await Promise.all(parallelTasks.map(taskList => {
+      taskList = taskList.filter(task => task !== undefined);
+
+      if (taskList.length > 0) {
+        return createLinkings(taskList, _.head(taskList).type);
+      }
+    }));
   }
   
 }

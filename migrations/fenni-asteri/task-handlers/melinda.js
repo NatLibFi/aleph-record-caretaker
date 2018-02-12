@@ -16,15 +16,26 @@
 
 const _ = require('lodash');
 const MarcRecord = require('marc-record-js');
+const moment = require('moment');
 
 const RecordUtils = require('../../../lib/record-utils');
 const MigrationUtils = require('../migration-utils');
-
+const utils = require('../utils');
 const taskUtils = require('./task-handler-utils');
+
+const oracledb = require('oracledb');
+oracledb.outFormat = oracledb.OBJECT;
 
 const MelindaRecordService = require('../melinda-record-service-fast-unsafe');
 const { XServerUrl, melindaEndpoint, melindaCredentials, dryRun } = taskUtils.readSettings();
 const melindaRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, melindaCredentials);
+
+const dbConfig = {
+  user: utils.readEnvironmentVariable('ORACLE_USER'),
+  password: utils.readEnvironmentVariable('ORACLE_PASS'),
+  connectString: utils.readEnvironmentVariable('ORACLE_CONNECT_STRING')
+};
+
 
 function transformRecord(melindaRecord, task) {
   
@@ -51,6 +62,19 @@ function transformRecord(melindaRecord, task) {
   return fixedRecord;
 }
 
+let conn;
+function getConnection() {
+
+  if (conn !== undefined) {
+    return Promise.resolve(conn);
+  } else {
+    return oracledb.getConnection(dbConfig).then(connection => {
+      conn = connection;
+      return conn;
+    });
+  }    
+}
+
 function handleMelindaRecord(tasks) {
   
   const {melindaRecord, melindaId, asteriIdForLinking, fixedAuthorityRecord, fenauRecordId, queryTermsString} = _.head(tasks);
@@ -75,11 +99,26 @@ function handleMelindaRecord(tasks) {
     return melindaRecordService.saveRecord('fin01', melindaId, compactedRecord).then(res => {
       console.log(`INFO MELINDA bib_id ${melindaId} \t Record saved successfully`);
       return res;
+    }).then((res) => {
+      // remove stuff from index
+
+      return getConnection().then(connection => {
+    
+        const seq = moment().format('YYYYMMDDHHmm') + '%';
+        return connection.execute('SELECT * FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE :sequence', [melindaId, seq], {resultSet: true})
+        .then(result => {
+          return utils.readAllRows(result.resultSet);
+        }).then(rows => {
+          console.log(`INFO MELINDA removing rows from indexing-queue: ${JSON.stringify(rows)}`);
+          return connection.execute('DELETE FROM FIN01.Z07 where Z07_REC_KEY = :recordId AND Z07_SEQUENCE LIKE :sequence', [melindaId, seq]);
+        }).then(() => connection.commit());
+      }).then(() => res);
+
     });
 
   } catch(error) {
 
-
+    error.melindaId = melindaId;
     if (error instanceof MigrationUtils.LinkingQueryError && error.message === 'Could not find field') {
       // check for stuff
       const seeFromTracingFields = fixedAuthorityRecord.fields.filter(field => _.includes(['400', '410', '411'], field.tag));

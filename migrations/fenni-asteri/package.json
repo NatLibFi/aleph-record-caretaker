@@ -24,6 +24,7 @@
     "marc-record-serializers": "https://github.com/petuomin/marc-record-serializers",
     "melinda-api-client": "^1.1.0",
     "memoize-fs": "^1.1.0",
+    "moment": "^2.18.1",
     "node-fetch": "^1.7.0",
     "oracledb": "^1.13.1",
     "string.prototype.at": "^0.2.0",

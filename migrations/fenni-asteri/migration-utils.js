@@ -156,7 +156,7 @@ function selectFieldForLinkingWithZero(record, queryTerms) {
       .filter(sub => !(sub.code === 'c' && sub.value === '(fiktiivinen hahmo)'))
       .filter(sub => !(sub.code === 'c' && sub.value === '(fiktiv gestalt)'));
       
-    return nameFieldDef;
+   return nameFieldDef;
   };
 
   const matcher = name => {
@@ -206,8 +206,10 @@ function selectFieldFromAuthorityRecordForLinkingWithZero(record, queryTerms) {
 
     return queryTerms.some(term => {
       const difference = _.differenceWith(term, normalized, _.isEqual);
+      const difference2 = _.differenceWith(normalized, term, _.isEqual);
       const isSubset = difference.length === 0;
-      return isSubset;
+      const isSubset2 = difference2.length === 0;
+      return isSubset*isSubset2;
     });
 
   });

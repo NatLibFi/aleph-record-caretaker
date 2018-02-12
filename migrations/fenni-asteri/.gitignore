@@ -5,3 +5,8 @@ tnsnames.ora
 kvp_aut_bib.txt
 test-voy*
 env
+loki.txt
+start.sh
+stop.sh
+status.sh
+
