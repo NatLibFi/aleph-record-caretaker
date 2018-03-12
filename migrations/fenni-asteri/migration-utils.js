@@ -42,7 +42,7 @@ function selectNameHeadingPermutations(record) {
   const meetingName = _.head(record.getFields('111'));
 
   if (corporateName) {
-    const authorizedPortion = MarcAuthorizedPortion.findAuthorizedPortion(MarcAuthrorizedPortion.RecordType.AUTH, corporateName);
+    const authorizedPortion = MarcAuthorizedPortion.findAuthorizedPortion(MarcAuthorizedPortion.RecordType.AUTH, corporateName);
     const subfields = _.concat(authorizedPortion.subfields, _.get(authorizedPortion, 'specifier.subfields', []));
     const normalized = subfields.map(subfield => ({ code: subfield.code, value: normalizeForHeadingQuery(subfield.value)}));
     return [normalized];
