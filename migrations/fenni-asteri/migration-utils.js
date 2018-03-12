@@ -12,7 +12,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */const RecordUtils = require('../../lib/record-utils');
+ */
+const RecordUtils = require('../../lib/record-utils');
+const MarcAuthorizedPortion = require('@natlibfi/melinda-marc-record-utils/dist/authorized-portion');
 const _ = require('lodash');
 
 const selectFirstSubfieldValue = RecordUtils.selectFirstSubfieldValue;
@@ -40,14 +42,14 @@ function selectNameHeadingPermutations(record) {
   const meetingName = _.head(record.getFields('111'));
 
   if (corporateName) {
-    const authorizedPortion = RecordUtils.findAuthorizedPortion(RecordUtils.RecordType.AUTH, corporateName);
+    const authorizedPortion = MarcAuthorizedPortion.findAuthorizedPortion(MarcAuthorizedPortion.RecordType.AUTH, corporateName);
     const subfields = _.concat(authorizedPortion.subfields, _.get(authorizedPortion, 'specifier.subfields', []));
     const normalized = subfields.map(subfield => ({ code: subfield.code, value: normalizeForHeadingQuery(subfield.value)}));
     return [normalized];
   }
 
   if (meetingName) {
-    const authorizedPortion = RecordUtils.findAuthorizedPortion(RecordUtils.RecordType.AUTH, meetingName);
+    const authorizedPortion = MarcAuthorizedPortion.findAuthorizedPortion(MarcAuthorizedPortion.RecordType.AUTH, meetingName);
     const subfields = _.concat(authorizedPortion.subfields, _.get(authorizedPortion, 'specifier.subfields', []));
     const normalized = subfields.map(subfield => ({ code: subfield.code, value: normalizeForHeadingQuery(subfield.value)}));
     return [normalized];
@@ -121,7 +123,7 @@ function selectNameFields(tags, record) {
     .filter(keepFennicaOrYsa600)
     .map(field => {
 
-      const authorizedPortion = RecordUtils.findAuthorizedPortion(RecordUtils.RecordType.BIB, field);
+      const authorizedPortion = MarcAuthorizedPortion.findAuthorizedPortion(MarcAuthorizedPortion.RecordType.BIB, field);
       const nameFields = _.concat(authorizedPortion.subfields, _.get(authorizedPortion, 'specifier.subfields', []));
       return { field, nameFields };
     });
