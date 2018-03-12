@@ -19,9 +19,11 @@ const fs = require('fs');
 const Constants = require('./constants');
 const TASK_TYPES = Constants.TASK_TYPES;
 
-const MarcPunctuation = require('../../lib/marc-punctuation-fix');
+const MarcPunctuation = require('@natlibfi/melinda-marc-record-utils/dist/punctuation');
+//const MarcPunctuation = require('../../lib/marc-punctuation-fix');
 
-const authRules =  MarcPunctuation.readRulesFromCSV(fs.readFileSync('../../lib/auth-punctuation.csv', 'utf8'));
+//const authRules =  MarcPunctuation.readRulesFromCSV(fs.readFileSync('../../lib/auth-punctuation.csv', 'utf8'));
+const authRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/auth-punctuation.json'));
 
 const fixPunctuationFromAuthField = MarcPunctuation.createRecordFixer(authRules, MarcPunctuation.RecordTypes.AUTHORITY);
 

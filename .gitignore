@@ -13,3 +13,4 @@ migrations/*iterator*
 .libtest*
 setup_env.sh
 tester.js
+npm-debug.log
