@@ -53,6 +53,12 @@ const baseMap = {
   'FI-ASTERI-N': 'FIN11'
 };
 
+const urnBaseMap = {
+  'FIN11': 'URN:NBN:fi:au:cn:'
+};
+
+const urnResolverPrefix = 'http://urn.fi/';
+
 const bibRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/bib-punctuation.json'));
 const authRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/auth-punctuation.json'));
 
@@ -61,6 +67,8 @@ const authSyncServiceOptions = {
   agentRecordBase: 'FIN11',
   noOperation,
   baseMap,
+  urnBaseMap,
+  urnResolverPrefix,
   logger,
   punctuationRulesForAuthRecord: authRules,
   punctuationRulesForBibRecord: bibRules
@@ -68,6 +76,8 @@ const authSyncServiceOptions = {
 const bibSyncServiceOptions = {
   noOperationBibChange,
   baseMap,
+  urnBaseMap,
+  urnResolverPrefix,
   logger,
   punctuationRulesForBibRecord: bibRules
 };
