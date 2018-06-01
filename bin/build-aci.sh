@@ -43,7 +43,7 @@ $ACBUILD_CMD environment add TNS_ADMIN /opt/aleph-record-caretaker/app
 $ACBUILD_CMD environment add LD_LIBRARY_PATH /opt/oracle-instantclient
 
 $ACBUILD_CMD set-working-directory /opt/aleph-record-caretaker/app
-$ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'echo "127.0.0.1 $(hostname)" > /etc/hosts && cp tnsnames.ora.template tnsnames.ora && sed -i -e "s/%/|/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" tnsnames.ora'
+$ACBUILD_CMD set-event-handler pre-start -- /bin/bash -c 'echo "127.0.0.1 $(hostname)" > /etc/hosts && cp tnsnames.ora.template tnsnames.ora && sed -i -e "s/%/|/g" -e "s/|PROTOCOL|/$PROTOCOL/g" -e "s/|HOST|/$HOST/g" -e "s/|SID|/$SID/g" -e "s/|PORT|/$PORT/g" tnsnames.ora && cp sqlnet.ora.template sqlnet.ora && if [ -n $WALLET_DIRECTORY ];then sed -i -e "s/%/_/g" -e "s|_WALLET_DIRECTORY_|$WALLET_DIRECTORY|g" sqlnet.ora;fi'
 
 $ACBUILD_CMD set-exec -- /bin/bash -c '/usr/bin/node index.js 2>&1 | tee -a /opt/aleph-record-caretaker/logs/aleph-record-caretaker.log'
 
@@ -59,16 +59,16 @@ if [ $ACBUILD_ENGINE == 'chroot' ];then
 fi
 
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- ln -fs /opt/oracle-instantclient/libclntsh.so.12.1 /opt/oracle-instantclient/libclntsh.so
-$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install apt-transport-https curl git python make gcc g++ libaio1'
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -o Acquire::ForceIPv4=true -y update && apt-get -o Acquire::ForceIPv4=true -y install apt-transport-https curl git python make gcc g++ libaio1'
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -'
 
 $ACBUILD_CMD copy build/nodesource.list /etc/apt/sources.list.d/nodesource.list
 $ACBUILD_CMD copy build/nodesource.pref /etc/apt/preferences.d/nodesource.pref
 
-$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install nodejs'
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -o Acquire::ForceIPv4=true -y update && apt-get -o Acquire::ForceIPv4=true -y install nodejs'
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE --working-dir /opt/aleph-record-caretaker/app -- /bin/bash -c 'OCI_LIB_DIR=/opt/oracle-instantclient OCI_INC_DIR=/opt/oracle-instantclient/sdk/include npm install --production'
 
-$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -y update && apt-get -y install tzdata'
+$ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'apt-get -o Acquire::ForceIPv4=true -y update && apt-get -o Acquire::ForceIPv4=true -y install tzdata'
 $ACBUILD_CMD run --engine $ACBUILD_ENGINE -- /bin/bash -c 'ln -fs /usr/share/zoneinfo/Europe/Helsinki /etc/localtime'
 
 if [ $ACBUILD_ENGINE == 'chroot' ];then
