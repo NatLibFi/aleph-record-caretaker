@@ -22,10 +22,9 @@ Example:
 ```
 TNS_ADMIN=`pwd` LD_LIBRARY_PATH=/opt/instantclient_12_2/ node index.js
 ```
-
-Example of tnsnames.ora 
+Example of tnsnames.ora
 ```
-$ cat tnsnames.ora 
+$ cat tnsnames.ora
 tunnel =
  (DESCRIPTION =
    (ADDRESS = (PROTOCOL = TCP)(HOST = localhost)(PORT = 1521))
@@ -33,12 +32,22 @@ tunnel =
      (SID = ALEPH20)
    )
  )
- ```
- This example uses oracle in localhost. The reposityory contains file called `tnsnames.ora.template` which can be used to make the tnsname.ora with sed, for example: 
- ```
- cat tnsnames.ora.template | sed 's/%HOST%/tunnel/g' | sed 's/%SID%/ALEPH20/g' | sed 's/%PORT%/1521/g'
- ```
+```
 
+This example uses oracle in localhost. The repository contains file called `tnsnames.ora.template` which can be used to make the tnsname.ora with sed, for example:
+```
+cat tnsnames.ora.template | sed 's/%PROTOCOL%/TCP/g' | sed 's/%HOST%/tunnel/g' | sed 's/%SID%/ALEPH20/g' | sed 's/%PORT%/1521/g'
+```
+## Encrypted communication with the Oracle DB
+Encrypted communication can be enabled by generating configuration files like so:
+```
+cat tnsnames.ora.template | sed 's/%PROTOCOL%/TCPS/g' | sed 's/%HOST%/tunnel/g' | sed 's/%SID%/ALEPH20/g' | sed 's/%PORT%/2484/g'
+```
+
+```
+cat sqlnet.ora.template | sed 's/%WALLET_DIRECTORY%/\/path\/to\/wallet/g' | sed 's/%HOST%/tunnel/g' | sed 's/%SID%/ALEPH20/g' | sed 's/%PORT%/1521/g'
+```
+Refer to [official instructions](https://docs.oracle.com/middleware/1213/wls/JDBCA/oraclewallet.htm) for wallet management.
 ## Configuration
 The following environment variables are used to configure the system:
 
@@ -58,7 +67,8 @@ The following environment variables are used to configure the system:
 | MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API
 | NOOP |  | run without making changes to database | 0
 | NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0
-| ONLINE | | times to run the service | '00:00-21:55, 22:30-24:00' | 
+| ONLINE | | times to run the service | '00:00-21:55, 22:30-24:00' |
+| TNS_ADMIN | | Path to Oracle configuration files |  |
 
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
