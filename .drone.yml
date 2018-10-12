@@ -13,7 +13,12 @@ pipeline:
   docker:
     image: plugins/docker
     repo: quay.io/natlibfi/aleph-record-caretaker
-    secrets: [ docker_username, docker_password ]
+    #secrets: [ docker_username, docker_password ]
+    secrets:
+    - source: docker_username
+      target: username
+    - source: docker_password
+      target: password
     when:
       event: [push, tag]
       branch: [master, test]
