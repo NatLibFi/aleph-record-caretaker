@@ -3,6 +3,7 @@ build
 node_modules
 dbconfig.js
 tnsnames.ora
+sqlnet.ora
 doc.txt
 run.sh
 .auth-sync-service-iterators
@@ -14,3 +15,7 @@ migrations/*iterator*
 setup_env.sh
 tester.js
 npm-debug.log
+.env
+instantclient*
+wallet
+data
