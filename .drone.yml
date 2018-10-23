@@ -13,7 +13,6 @@ pipeline:
   docker:
     image: plugins/docker
     repo: quay.io/tike/aleph-record-caretaker
-    secrets: [ docker_username, docker_password ]
     when:
       event: [push, tag]
       branch: [master, test]
