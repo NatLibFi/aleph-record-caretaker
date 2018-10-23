@@ -12,7 +12,7 @@ pipeline:
     - npm test
   docker:
     image: plugins/docker
-    repo: quay.io/natlibfi/aleph-record-caretaker
+    repo: quay.io/tike/aleph-record-caretaker
     secrets: [ docker_username, docker_password ]
     when:
       event: [push, tag]
