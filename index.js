@@ -1,12 +1,12 @@
 /**
  * Copyright 2017 University Of Helsinki (The National Library Of Finland)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,6 +14,10 @@
  * limitations under the License.
  */// running this requires at least node 7.10.0
 /* eslint no-console: 0 */
+
+process.on('SIGINT', () => {
+  process.exit(-1);
+});
 
 const logger = require('./lib/logger');
 logger.log('info', 'Starting aleph-record-caretaker');
@@ -130,18 +134,18 @@ function updateOnlineState() {
   debug(`now is ${now}`);
   if (onlineTimes.some(({from, to}) => from <= now && now <= to)) {
     if (!isRunning) {
-            
-      start().catch(error => { 
-        console.error(error); 
+
+      start().catch(error => {
+        console.error(error);
         logger.log('error', error.message, error);
       });
       isRunning = true;
     }
   } else {
     if (isRunning) {
-            
-      stop().catch(error => { 
-        console.error(error); 
+
+      stop().catch(error => {
+        console.error(error);
         logger.log('error', error.message, error);
       });
       isRunning = false;
@@ -163,10 +167,10 @@ async function start() {
 
   logger.log('info', 'Creating aleph changelistener');
   alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
-  
+
   logger.log('info', 'Starting aleph changelistener');
   alephChangeListener.start();
-  
+
   logger.log('info', 'Waiting for changes');
 
 }
@@ -192,9 +196,9 @@ async function onChange(changes) {
   }
   logger.log('info', `Handling ${changes.length} changes.`);
   noChangesLogger.reset();
-  
+
   for (const change of changes) {
-  
+
     try {
       switch(change.library) {
         case 'FIN01': await bibRecordSyncService.handleBibChange(change); break;
