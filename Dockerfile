@@ -4,10 +4,12 @@ CMD ["/usr/local/bin/node", "index.js"]
 
 ENV TNS_ADMIN /home/node
 ENV LD_LIBRARY_PATH /home/node/instantclient
+ENV WALLET_DIRECTORY /home/node/wallet
 
 WORKDIR /home/node
 
 COPY --chown=node:node . /home/node
+COPY --chown=node:node wallet /home/node/
 
 RUN apt-get update && apt-get install -y build-essential git sudo libaio1 \
   && sudo -u node sh -c 'rm -rf node_modules \
