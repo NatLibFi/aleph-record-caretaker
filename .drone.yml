@@ -1,18 +1,29 @@
-pipeline:
-  generate-tags:
-    image: quay.io/natlibfi/drone-gen-tags
-  install-oracle-instantclient:
-    image: quay.io/tike/drone-install-instantclient:12.2
-  test:
-    image: node:8
-    commands:
+kind: pipeline
+name: default
+steps:
+- name: generate-tags
+  image: quay.io/natlibfi/drone-gen-tags
+- name: install-instantclient
+  image: quay.io/tike/drone-install-instantclient:12.2  
+- name: test
+  image: node:8
+  commands:
     - export OCI_LIB_DIR=$PWD/instantclient
     - export OCI_INC_DIR=$PWD/instantclient/sdk/include
     - npm install
     - npm test
-  docker:
-    image: plugins/docker
+- name: docker 
+  image: plugins/docker
+  settings:
     repo: quay.io/tike/aleph-record-caretaker
-    when:
-      event: [push, tag]
-      branch: [master, test]
+    registry: quay.io
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    branch: [master, test]
+trigger:  
+  event: [push, tag]
+image_pull_secrets:
+- pull_docker_config
