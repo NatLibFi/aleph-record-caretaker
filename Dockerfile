@@ -9,9 +9,9 @@ ENV WALLET_DIRECTORY /home/node/wallet
 WORKDIR /home/node
 
 COPY --chown=node:node . /home/node
-COPY --chown=node:node wallet /home/node/
 
 RUN apt-get update && apt-get install -y build-essential git sudo libaio1 \
+  && mkdir /data && chown node:node /data \
   && sudo -u node sh -c 'rm -rf node_modules \
     && export OCI_LIB_DIR=/home/node/instantclient \
     && export OCI_INC_DIR=/home/node/instantclient/sdk/include \
