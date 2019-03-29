@@ -36,7 +36,8 @@ const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
-const MarcPunctuation = require('@natlibfi/melinda-marc-record-utils/dist/punctuation');
+const {Punctuation} = require('@natlibfi/melinda-marc-record-utils');
+const {BibRules: bibRules, AuthRules: authRules} = Punctuation;
 
 const utils = require('./lib/utils');
 
@@ -62,9 +63,6 @@ const urnBaseMap = {
 };
 
 const urnResolverPrefix = 'http://urn.fi/';
-
-const bibRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/bib-punctuation.json'));
-const authRules = MarcPunctuation.readPunctuationRulesFromJSON(require('@natlibfi/melinda-marc-record-utils/dist/punctuation/auth-punctuation.json'));
 
 const authSyncServiceOptions = {
   bibRecordBase: 'FIN01',
