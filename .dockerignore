@@ -1,4 +1,8 @@
+.env
+.travis.yml
+.drone.yml
 node_modules
+.git
 tnsnames.ora
 sqlnet.ora
 .auth-sync-service-iterators
@@ -6,10 +10,6 @@ sqlnet.ora
 .*-cursors.json
 migrations/*iterator*
 npm-debug.log
-.env
-instantclient*
-wallet
-data
 aleph-changelistener-cursors.json
 changesqueue
 z106_stash*
