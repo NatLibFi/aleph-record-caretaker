@@ -207,7 +207,7 @@ async function onChange(changes) {
         default: logger.log('warn', `Could not find handler for base ${change.library}`); return;
       }
     } catch(error) {
-      logger.log('error', error.message, error);
+      logger.log('error', `[${change.library}:${change.recordId}]`, error.message, error);
       console.error(error);
     }
 
