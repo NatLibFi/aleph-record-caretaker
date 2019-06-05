@@ -15,9 +15,9 @@
  */// running this requires at least node 7.10.0
 /* eslint no-console: 0 */
 
-process.on('SIGINT', () => {
-  process.exit(-1);
-});
+process.on('uncaughtException', handleException);
+process.on('unhandledRejection', handleException);
+process.on('SIGINT', handleException);
 
 const logger = require('./lib/logger');
 logger.log('info', 'Starting aleph-record-caretaker');
@@ -211,4 +211,9 @@ async function onChange(changes) {
 
   }
 
+}
+
+function handleException(err) {
+  logger.log('error', 'stack' in err ? err.stack : err);
+  process.exit(1);
 }
