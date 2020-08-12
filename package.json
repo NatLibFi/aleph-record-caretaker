@@ -14,6 +14,9 @@
     "url": "git@github.com:NatLibFi/aleph-record-caretaker.git"
   },
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">= 12.0.0"
+  },
   "main": "index.js",
   "scripts": {
     "test": "mocha lib/*.spec.js",
@@ -21,22 +24,22 @@
     "publish-to-npm": "npm test && npm publish --access=public"
   },
   "dependencies": {
-    "@natlibfi/aleph-change-listener": "^1.0.0",
+    "@natlibfi/aleph-change-listener": "file:../aleph-change-listener",
     "@natlibfi/melinda-marc-record-utils": "^1.2.1",
-    "csv-parse": "1.2.0",
-    "debug": "2.6.8",
-    "es6-promisify": "5.0.0",
+    "csv-parse": "4.12.0",
+    "debug": "4.1.1",
+    "es6-promisify": "6.1.1",
     "isomorphic-fetch": "2.2.1",
     "marc-record-js": "0.3.2",
     "marc-record-serializers": "^1.4.0",
-    "melinda-api-client": "git+https://github.com/natlibfi/melinda-api-client.git#stable",
-    "oracledb": "1.13.1",
-    "winston": "2.3.1",
-    "xml2js": "0.4.17"
+    "melinda-api-client": "1.1.2",
+    "oracledb": "5.0.0",
+    "winston": "3.3.3",
+    "xml2js": "0.4.23"
   },
   "devDependencies": {
-    "chai": "4.1.2",
-    "mocha": "5.0.0",
-    "sinon": "4.2.1"
+    "chai": "4.2.0",
+    "mocha": "8.1.1",
+    "sinon": "9.0.3"
   }
 }
