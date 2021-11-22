@@ -33,8 +33,6 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-  when:
-    branch: [master, test]
 
 ---
 kind: secret
@@ -50,6 +48,6 @@ name: docker_password
 data:
 ---
 kind: signature
-hmac: 88ac2e7293056338ba3cfb7644182d64c0ed288b1faef959c6922d28c80951ef
+hmac: 5895ec8cab5aba1c4afdaa7c7723673f65f90b60e748f70368388a5163db75fa
 
 ...
