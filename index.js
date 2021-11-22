@@ -161,6 +161,7 @@ async function run() {
       if (DEBUG_SQL) {
         utils.decorateConnectionWithDebug(connection);
       }
+      logger.log('debug', `Changelistener options: ${JSON.stringify(options)}`);
       
       logger.log('info', 'Creating aleph changelistener');
       alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
