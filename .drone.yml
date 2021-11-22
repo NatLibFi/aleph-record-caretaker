@@ -1,19 +1,42 @@
 ---
 kind: pipeline
-name: default
+type: docker
+name: Default
+
+trigger:
+  event: [push, tag]
+
+image_pull_secrets:
+- pull_docker_config
+
 steps:
 - name: generate-tags
   image: quay.io/natlibfi/drone-gen-tags
+
 - name: install-instantclient
-  image: quay.io/tike/drone-install-instantclient:12.2  
+  image: quay.io/tike/drone-install-instantclient:12.2
+
 - name: test
-  image: node:8
+  image: node:12
   commands:
     - export OCI_LIB_DIR=$PWD/instantclient
     - export OCI_INC_DIR=$PWD/instantclient/sdk/include
     - npm install
     - npm test
-- name: docker 
+
+- name: build
+  image: node:12
+  commands:
+    - npm run build
+  environment:
+    NPM_CONFIG_IGNORE_SCRIPTS: true
+
+- name: static-security-scan
+  image: quay.io/natlibfi/njsscan
+  commands:
+    - njsscan dist
+
+- name: docker
   image: plugins/docker
   settings:
     repo: quay.io/tike/aleph-record-caretaker
@@ -24,12 +47,23 @@ steps:
       from_secret: docker_password
   when:
     branch: [master, test]
-trigger:  
-  event: [push, tag]
-image_pull_secrets:
-- pull_docker_config
+
+---
+kind: secret
+name: pull_docker_config
+data:
+---
+kind: secret
+name: docker_username
+data:
+---
+kind: secret
+name: docker_password
+data:
+---
+
 ---
 kind: signature
-hmac: 387d207d449ab91cc8bfddca683b9c18d02eecb8325ddbcb6001b23b1d8e10be
+hmac: ddfe62b9038cf711183d7d602600230797eb9dbb43cb0bab51274043218f9b6c
 
 ...
