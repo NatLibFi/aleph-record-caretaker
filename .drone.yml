@@ -17,7 +17,7 @@ steps:
   image: quay.io/tike/drone-install-instantclient:12.2
 
 - name: test
-  image: node:12
+  image: node:8
   commands:
     - export OCI_LIB_DIR=$PWD/instantclient
     - export OCI_INC_DIR=$PWD/instantclient/sdk/include
@@ -41,13 +41,13 @@ data:
 ---
 kind: secret
 name: docker_username
-data:
+data: Nks0fG0sSsf0+l9eOqACPfINYzU7EZZW3/0iVzpcApptLcezK09WIE6zU5d/Kj1pzcbyDObWKf9D+l7DFJGvnw==
 ---
 kind: secret
 name: docker_password
-data:
+data: Pcrq4zSPwZcjkYDsghGVjslN7+JF+jVfiYXJtzKnA+b+t0GYiQ/ti4SVW+LtkxtfOURnd7/bzPw51TBPqwzLguGGLnMPKn607BpBgSMb/3XwtRO5bi3Qw+1zf0U=
 ---
 kind: signature
-hmac: 5895ec8cab5aba1c4afdaa7c7723673f65f90b60e748f70368388a5163db75fa
+hmac: dd778764f21c005b8c3251336f87c029b716445177acc4f42ac12b1125ca0523
 
 ...
