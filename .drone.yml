@@ -61,9 +61,7 @@ kind: secret
 name: docker_password
 data:
 ---
-
----
 kind: signature
-hmac: ddfe62b9038cf711183d7d602600230797eb9dbb43cb0bab51274043218f9b6c
+hmac: 8077dda129bffff4d047f7341dd13c7809a0875ac6cf95372f7a4833ab9558a0
 
 ...
