@@ -18,7 +18,7 @@ RUN apk update && apk upgrade
 RUN apk add --no-cache tzdata
 ENV TZ=Europe/Helsinki
 
-COPY --from=builder /home/node/dist/ .
+# COPY --from=builder /home/node/dist/ .
 COPY --from=builder /home/node/node_modules node_modules
 COPY --from=builder /home/node/package.json .
 COPY --from=builder /home/node/package-lock.json .
