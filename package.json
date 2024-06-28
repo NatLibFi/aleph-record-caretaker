@@ -21,7 +21,7 @@
     "publish-to-npm": "npm test && npm publish --access=public"
   },
   "dependencies": {
-    "@natlibfi/aleph-change-listener": "^1.0.1",
+    "@natlibfi/aleph-change-listener": "NatLibFi/aleph-change-listener#openshift",
     "@natlibfi/melinda-marc-record-utils": "^1.2.1",
     "@natlibfi/oracledb-aleph": "^5.5.0",
     "csv-parse": "^5.5.6",
