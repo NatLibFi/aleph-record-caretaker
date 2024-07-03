@@ -48,8 +48,7 @@ async function run() {
   const CURSOR_FILE = utils.readEnvironmentVariable('CURSOR_FILE', '.aleph-changelistener-cursors.json');
   const Z106_STASH_PREFIX = utils.readEnvironmentVariable('Z106_STASH_PREFIX', '.z106_stash');
   const CHANGES_QUEUE_FILE = utils.readEnvironmentVariable('CHANGES_QUEUE_FILE', '.aleph-changelistener-changesqueue');
-  
-  const DEBUG_SQL = process.env.DEBUG_SQL;
+  const DEBUG_SQL = utils.readEnvironmentVariable('DEBUG_SQL', false);
   const ONLINE = utils.readEnvironmentVariable('ONLINE', '00:00-21:55, 22:30-24:00');
   const onlineTimes = utils.parseTimeRanges(ONLINE);
   const NOOP = utils.readEnvironmentVariable('NOOP', '0');
@@ -159,10 +158,12 @@ async function run() {
       connection = await oracledb.getConnection(dbConfig);
       
       if (DEBUG_SQL) {
-        utils.decorateConnectionWithDebug(connection);
+        debug(`We have DEBUG_SQL: ${DEBUG_SQL}`);
+        if (DEBUG_SQL !== '0') {
+          utils.decorateConnectionWithDebug(connection);
+        }
       }
 
-      
       logger.log('info', 'Creating aleph changelistener');
       alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
       
