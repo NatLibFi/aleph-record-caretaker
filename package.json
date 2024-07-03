@@ -22,7 +22,6 @@
     "publish-to-npm": "npm test && npm publish --access=public"
   },
   "dependencies": {
-    "@natlibfi/aleph-change-listener": "NatLibFi/aleph-change-listener#openshift",
     "@natlibfi/melinda-api-client": "^2.0.0",
     "@natlibfi/melinda-marc-record-utils": "^1.2.1",
     "csv-parse": "^5.5.6",
