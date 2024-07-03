@@ -29,10 +29,8 @@
     "debug": "^2.6.9",
     "es6-promisify": "5.0.0",
     "isomorphic-fetch": "^3.0.0",
-    "marc-record-converters": "^1.0.0",
     "marc-record-js": "0.3.2",
     "marc-record-serializers": "^1.4.0",
-    "melinda-api-client": "1.1.1",
     "oracledb": "^5.5.0",
     "winston": "2.3.1",
     "xml2js": "^0.6.2"
