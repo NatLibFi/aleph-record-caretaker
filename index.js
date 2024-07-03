@@ -197,6 +197,7 @@ async function run() {
           switch(change.library) {
             case 'FIN01': await bibRecordSyncService.handleBibChange(change); break;
             case 'FIN11': await authRecordSyncService.handleAuthChange(change); break;
+            // TODO: we could remove FIN19
             case 'FIN19': await authRecordSyncService.handleAuthChange(change); break;
             default: logger.log('warn', `Could not find handler for base ${change.library}`); return;
           }
