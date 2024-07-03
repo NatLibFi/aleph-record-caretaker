@@ -192,6 +192,10 @@ async function run() {
       logger.log('info', `Handling ${changes.length} changes. ${JSON.stringify(changes)}`);
       noChangesLogger.reset();
       
+      const changeCount = changes.length;
+      let changesHandled = 0;
+      let changesErrored = 0
+
       for (const change of changes) {  
         try {
           switch(change.library) {
@@ -199,11 +203,13 @@ async function run() {
             case 'FIN11': await authRecordSyncService.handleAuthChange(change); break;
             // TODO: we could remove FIN19
             case 'FIN19': await authRecordSyncService.handleAuthChange(change); break;
-            default: logger.log('warn', `Could not find handler for base ${change.library}`); return;
+            default: logger.log('warn', `Could not find handler for base ${change.library}`); changesErrored = changesErrored + 1; return;
           }
+          changesHandled = changesHandled + 1;
         } catch(error) {
           logger.log('error', `[${change.library}:${change.recordId}]`, error.message, error);
-          console.error(error);
+          changesErrored = changesErrored + 1;
+          //console.error(error);
         }
       }
     }
