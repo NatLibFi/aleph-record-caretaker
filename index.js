@@ -185,11 +185,12 @@ async function run() {
     }
     
     async function onChange(changes) {
-      debug(`Changes: ${changes.length}`);
+      debug(`Changes: ${changes.length}: ${JSON.stringify(changes)}`);
       if (changes.length === 0) {
         return noChangesLogger();
       }
-      logger.log('info', `Handling ${changes.length} changes. ${JSON.stringify(changes)}`);
+      logger.log('info', `Handling ${changes.length} changes.`);
+     
       noChangesLogger.reset();
       
       const changeCount = changes.length;
