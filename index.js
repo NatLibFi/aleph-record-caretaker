@@ -189,7 +189,7 @@ async function run() {
       if (changes.length === 0) {
         return noChangesLogger();
       }
-      logger.log('info', `Handling ${changes.length} changes.`);
+      logger.log('info', `Handling ${changes.length} changes. ${JSON.stringify(changes)}`);
       noChangesLogger.reset();
       
       for (const change of changes) {  
