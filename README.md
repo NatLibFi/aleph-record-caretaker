@@ -1,5 +1,8 @@
 # A service that applies Melinda-specific conversions when records change in Aleph [![NPM Version](https://img.shields.io/npm/v/@natlibfi/aleph-record-caretaker.svg)](https://npmjs.org/package/aleph-record-caretaker) [![Build Status](https://travis-ci.org/NatLibFi/aleph-record-caretaker.svg)](https://travis-ci.org/NatLibFi/aleph-record-caretaker)
 
+
+Note: this README.md is partly outdated for version > 2.0.0
+
 # Installation
 
 This system requires oracle connections. Check instructions for installing [node-oracledb](https://github.com/oracle/node-oracledb).
@@ -76,6 +79,6 @@ The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora f
 
 ## License and copyright
 
-Copyright (c) 2017-2019 **University Of Helsinki (The National Library Of Finland)**
+Copyright (c) 2017-2019, 2024 **University Of Helsinki (The National Library Of Finland)**
 
 This project's source code is licensed under the terms of **Apache License 2.0**.
