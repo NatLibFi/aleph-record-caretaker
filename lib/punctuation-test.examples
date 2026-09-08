@@ -1,0 +1,8 @@
+AUTH:
+100 34 $a Sukunimi (suku : $c Pukkila : $g kantaisä)
+BIB-original:
+600 34 $a Sukunimi, $c (suku)
+BIB-fixed:
+600 34 $a Sukunimi (suku : $c Pukkila : $g kantaisä)
+
+
