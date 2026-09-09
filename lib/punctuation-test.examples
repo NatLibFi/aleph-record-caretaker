@@ -1,0 +1,21 @@
+-- Family authority with qualifiers in $c, $g and brackets in two subfields
+AUTH:
+100 34 $a Sukunimi (suku : $c Pukkila : $g kantaisä)
+BIB-original:
+600 34 $a Sukunimi, $c (suku)
+BIB-fixed:
+600 34 $a Sukunimi (suku : $c Pukkila : $g kantaisä)
+
+
+-- different control subfields
+
+- e = we need to add comma
+- 4 = no comma
+- 700s with $i and $t - what happens
+- meetings with or without specific instances of event
+
+- could we handle fin13 work/expression authorities?
+
+
+-- ending punctuation
+
