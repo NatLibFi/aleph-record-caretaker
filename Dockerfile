@@ -1,4 +1,4 @@
-FROM node:18-alpine as builder
+FROM node:24-alpine as builder
 WORKDIR /home/node
 COPY . .
 
@@ -6,7 +6,7 @@ COPY . .
 RUN sh -c 'npm i --ignore-scripts && rm -rf node_modules'
 RUN sh -c 'npm i --ignore-scripts --production'
 
-FROM node:18-alpine
+FROM node:24-alpine
 CMD ["/usr/local/bin/node", "index.js"]
 WORKDIR /home/node
 #USER node
