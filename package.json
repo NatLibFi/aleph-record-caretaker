@@ -22,7 +22,7 @@
     "publish-to-npm": "npm test && npm publish --access=public"
   },
   "dependencies": {
-    "@natlibfi/marc-record-validators-melinda": "^11.6.2",
+    "@natlibfi/marc-record-validators-melinda": "^13.0.5",
     "@natlibfi/melinda-api-client": "^2.0.0",
     "@natlibfi/melinda-marc-record-utils": "^1.2.1",
     "csv-parse": "^5.5.6",
