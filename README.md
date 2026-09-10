@@ -60,6 +60,8 @@ The following environment variables are used to configure the system:
 | Z115_BASE | | Z115 base for polling | USR00 |
 | CURSOR_FILE | | file for saving the polling cursors | .aleph-changelistener-cursors.json |
 | Z106_STASH_PREFIX | | file for saving intermediate info about Z106 | .z106_stash |
+| CHANGES_QUEUE_FILE | | file for saving the changes queue | .aleph-changelistener-changesqueue |
+| DEBUG_SQL | | print SQL executed against the Oracle database | false |
 | POLL_INTERVAL_MS | | wait time between pollings | 5000 |
 | ORACLE_USER | x | oracle username | - |
 | ORACLE_PASS | x | oracle password | - |
