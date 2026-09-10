@@ -20,7 +20,7 @@
     "lint:fix": "eslint . --fix",
     "test": "mocha \"lib/**/*.spec.js\"",
     "test:watch": "mocha lib/*.spec.js -w",
-    "coverage": "nyc --reporter=text --reporter=html mocha 'lib/**/*.spec.js'",
+    "coverage": "nyc --reporter=text --reporter=html --check-coverage --lines 78 --functions 82 --branches 70 mocha 'lib/**/*.spec.js'",
     "publish-to-npm": "npm test && npm publish --access=public"
   },
   "nyc": {
