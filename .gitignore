@@ -4,14 +4,17 @@ sqlnet.ora
 .auth-sync-service-iterators
 .*stash_*
 .*-cursors.json
+.aleph-changelistener-*
 migrations/*iterator*
 npm-debug.log
 .env
 instantclient*
 wallet
 data
+doc.txt
 aleph-changelistener-cursors.json
 changesqueue
 z106_stash*
+run.sh
 .nyc_output
 coverage

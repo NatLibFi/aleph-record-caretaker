@@ -18,8 +18,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "mocha lib/*.spec.js",
-    "testAll": "mocha lib/**/*.spec.js && mocha lib/*.spec.js",
+    "test": "mocha \"lib/**/*.spec.js\"",
     "test:watch": "mocha lib/*.spec.js -w",
     "coverage": "nyc --reporter=text --reporter=html mocha 'lib/**/*.spec.js'",
     "publish-to-npm": "npm test && npm publish --access=public"
@@ -34,8 +33,7 @@
       "**/*.spec.js",
       "lib/test-utils.js",
       "lib/punctuation-test.examples",
-      "lib/melinda-marc-record-utils/**",
-      "lib/aleph-change-listener/tester.js"
+      "lib/melinda-marc-record-utils/**"
     ]
   },
   "dependencies": {

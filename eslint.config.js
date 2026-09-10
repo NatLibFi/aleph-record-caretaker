@@ -37,7 +37,6 @@ module.exports = [
   {
     ignores: [
       'node_modules/**',
-      'lib/aleph-change-listener/node_modules/**',
       'lib/test-fixtures/**',
     ],
   },

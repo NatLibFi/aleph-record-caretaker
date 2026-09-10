@@ -77,6 +77,10 @@ Since the Z106 resolution is only 60 seconds in Aleph, the changes that have alr
 
 The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora file. With above tnsnames.ora it should be "tunnel".
 
+## Aleph change listener
+
+Record change polling is implemented in the internal module [`lib/aleph-change-listener`](lib/aleph-change-listener), which listens for record changes in Aleph ILS by polling the Z106 (bibliographic changes) and Z115 (user changes) tables through an Oracle DB connection. It is part of this package and is started by [`index.js`](index.js) whenever the service is online.
+
 ## License and copyright
 
 Copyright (c) 2017-2019, 2024-2026 **University Of Helsinki (The National Library Of Finland)**
