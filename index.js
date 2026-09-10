@@ -204,7 +204,7 @@ async function run() {
             case 'FIN11': await authRecordSyncService.handleAuthChange(change); break;
             // TODO: we could remove FIN19
             case 'FIN19': await authRecordSyncService.handleAuthChange(change); break;
-            default: logger.log('warn', `Could not find handler for base ${change.library}`); changesErrored = changesErrored + 1; return;
+            default: logger.log('warn', `Could not find handler for base ${change.library}`); changesErrored = changesErrored + 1; continue;
           }
           changesHandled = changesHandled + 1;
         } catch(error) {
