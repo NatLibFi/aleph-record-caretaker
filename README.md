@@ -61,17 +61,17 @@ The following environment variables are used to configure the system:
 | CURSOR_FILE | | file for saving the polling cursors | .aleph-changelistener-cursors.json |
 | Z106_STASH_PREFIX | | file for saving intermediate info about Z106 | .z106_stash |
 | POLL_INTERVAL_MS | | wait time between pollings | 5000 |
-| ORACLE_USER | x | oracle username | -
-| ORACLE_PASS | x | oracle password | -
-| ORACLE_CONNECT_STRING | x | oracle connection string | -
-| X_SERVER | x | Aleph X-server url | -
-| ALEPH_CARETAKER_USER | x | Aleph username | -
-| ALEPH_CARETAKER_PASS | x | Aleph password | -
-| MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API
-| NOOP |  | run without making changes to database | 0
-| NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0
+| ORACLE_USER | x | oracle username | - |
+| ORACLE_PASS | x | oracle password | - |
+| ORACLE_CONNECT_STRING | x | oracle connection string | - |
+| X_SERVER | x | Aleph X-server url | - |
+| ALEPH_CARETAKER_USER | x | Aleph username | - |
+| ALEPH_CARETAKER_PASS | x | Aleph password | - |
+| MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API |
+| NOOP | | run without making changes to database | 0 |
+| NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0 |
 | ONLINE | | times to run the service | '00:00-21:55, 22:30-24:00' |
-| TNS_ADMIN | | Path to Oracle configuration files |  |
+| TNS_ADMIN | | Path to Oracle configuration files | |
 
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
