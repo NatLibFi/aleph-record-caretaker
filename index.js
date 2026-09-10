@@ -19,11 +19,8 @@
 
 
 const logger = require('./lib/logger');
-const fs = require('fs');
-const path = require('path');
 const oracledb = require('oracledb');
 const debug = require('debug')('@natlibfi/aleph-record-caretaker:main');
-const _ = require('lodash');
 const AlephChangeListener = require('./lib/aleph-change-listener/aleph-change-listener');
 const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
@@ -193,7 +190,6 @@ async function run() {
 
       noChangesLogger.reset();
 
-      const changeCount = changes.length;
       let changesHandled = 0;
       let changesErrored = 0;
 
