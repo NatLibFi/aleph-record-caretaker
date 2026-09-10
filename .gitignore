@@ -13,3 +13,5 @@ data
 aleph-changelistener-cursors.json
 changesqueue
 z106_stash*
+.nyc_output
+coverage
