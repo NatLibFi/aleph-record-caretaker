@@ -1,6 +1,4 @@
 .env
-.travis.yml
-.drone.yml
 node_modules
 .git
 tnsnames.ora

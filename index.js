@@ -12,17 +12,16 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
-*/// running this requires at least node 7.10.0
+**/
+
+// running this requires at least node 7.10.0
 /* eslint no-console: 0 */
 
 
 const logger = require('./lib/logger');
-const fs = require('fs');
-const path = require('path');
 const oracledb = require('oracledb');
 const debug = require('debug')('@natlibfi/aleph-record-caretaker:main');
-const _ = require('lodash');
-const AlephChangeListener = require('./lib/aleph-change-listener/aleph-change-listener');
+const AlephChangeListener = require('./lib/aleph-change-listener');
 const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
@@ -55,22 +54,20 @@ async function run() {
   const noOperation = NOOP !== '0' ? true : false;
   const NOOP_BIBCHANGE = utils.readEnvironmentVariable('NOOP_BIBCHANGE', '0');
   const noOperationBibChange = (NOOP !== '0' || NOOP_BIBCHANGE !== '0') ? true : false;
-  
-  // NOTE: we do not use bibRules from melinda-marc-record-utils/Punctuation 
-  //const {BibRules: bibRules, AuthRules: authRules} = Punctuation;  
-  const {AuthRules: authRules} = Punctuation;  
-  
+
+  const { AuthRules: authRules } = Punctuation;
+
   const baseMap = {
     'FI-ASTERI-S': 'FIN10',
     'FI-ASTERI-N': 'FIN11'
   };
-  
+
   const urnBaseMap = {
     'FIN11': 'URN:NBN:fi:au:cn:'
   };
-  
+
   const urnResolverPrefix = 'http://urn.fi/';
-  
+
   const authSyncServiceOptions = {
     bibRecordBase: 'FIN01',
     agentRecordBase: 'FIN11',
@@ -81,7 +78,7 @@ async function run() {
     logger,
     punctuationRulesForAuthRecord: authRules
   };
-  
+
   const bibSyncServiceOptions = {
     noOperationBibChange,
     baseMap,
@@ -89,7 +86,7 @@ async function run() {
     urnResolverPrefix,
     logger,
   };
-  
+
   const options = {
     Z106Bases: Z106_BASES,
     Z115Base: Z115_BASE,
@@ -98,46 +95,46 @@ async function run() {
     Z106StashPrefix: Z106_STASH_PREFIX,
     changesQueueSaveFile: CHANGES_QUEUE_FILE
   };
-  
+
   const dbConfig = {
     user: utils.readEnvironmentVariable('ORACLE_USER'),
     password: utils.readEnvironmentVariable('ORACLE_PASS'),
     connectString: utils.readEnvironmentVariable('ORACLE_CONNECT_STRING')
   };
-  
+
   const XServerUrl = utils.readEnvironmentVariable('X_SERVER');
   const melindaEndpoint = utils.readEnvironmentVariable('MELINDA_API', 'http://libtest1.csc.fi:8992/API');
-  
+
   const credentials = {
     username: utils.readEnvironmentVariable('ALEPH_CARETAKER_USER'),
     password: utils.readEnvironmentVariable('ALEPH_CARETAKER_PASS')
   };
-  
+
   const alephRecordService = MelindaRecordService.createMelindaRecordService(melindaEndpoint, XServerUrl, credentials);
   const alephFindService = AlephFindService.create(XServerUrl);
-  
-  
+
+
   const bibRecordSyncService = BibRecordSyncService.create(alephRecordService, alephFindService, bibSyncServiceOptions);
   const authRecordSyncService = AuthRecordSyncService.create(alephRecordService, alephFindService, authSyncServiceOptions);
-  
+
   const noChangesLogger = utils.accumulate(12, () => {
     logger.log('info', 'No changes.');
   });
-  
+
   let alephChangeListener;
   let connection;
-  
+
   let isRunning = false;
-  
+
   oracledb.outFormat = oracledb.OBJECT;
-  
+
   logger.log('info', 'Starting aleph-record-caretaker');
   logger.log('info', `Online times: ${ONLINE}. Current time: ${utils.getCurrentTime()}`);
-  
-  
+
+
   await updateOnlineState();
   setInterval(updateOnlineState, 60000);
-  
+
   async function updateOnlineState() {
     const now = utils.parseTime(utils.getCurrentTime());
     debug(`now is ${now}`);
@@ -152,11 +149,11 @@ async function run() {
         isRunning = false;
       }
     }
-    
+
     async function start() {
       logger.log('info', 'Connecting to oracle');
       connection = await oracledb.getConnection(dbConfig);
-      
+
       if (DEBUG_SQL) {
         debug(`We have DEBUG_SQL: ${DEBUG_SQL}`);
         if (DEBUG_SQL !== '0') {
@@ -166,51 +163,49 @@ async function run() {
 
       logger.log('info', 'Creating aleph changelistener');
       alephChangeListener = await AlephChangeListener.create(connection, options, onChange);
-      
+
       logger.log('info', 'Starting aleph changelistener');
       alephChangeListener.start();
-      
+
       logger.log('info', 'Waiting for changes');
-      
+
     }
-    
+
     async function stop() {
       if (alephChangeListener) {
         alephChangeListener.stop();
         logger.log('info', 'Stopped aleph changelistener');
-        
+
         await connection.close();
         logger.log('info', 'Disconnected from oracle');
       }
     }
-    
+
     async function onChange(changes) {
       debug(`Changes: ${changes.length}: ${JSON.stringify(changes)}`);
       if (changes.length === 0) {
         return noChangesLogger();
       }
       logger.log('info', `Handling ${changes.length} changes.`);
-     
-      noChangesLogger.reset();
-      
-      const changeCount = changes.length;
-      let changesHandled = 0;
-      let changesErrored = 0
 
-      for (const change of changes) {  
+      noChangesLogger.reset();
+
+      let changesHandled = 0;
+      let changesErrored = 0;
+
+      for (const change of changes) {
         try {
           switch(change.library) {
             case 'FIN01': await bibRecordSyncService.handleBibChange(change); break;
             case 'FIN11': await authRecordSyncService.handleAuthChange(change); break;
             // TODO: we could remove FIN19
             case 'FIN19': await authRecordSyncService.handleAuthChange(change); break;
-            default: logger.log('warn', `Could not find handler for base ${change.library}`); changesErrored = changesErrored + 1; return;
+            default: logger.log('warn', `Could not find handler for base ${change.library}`); changesErrored = changesErrored + 1; continue;
           }
           changesHandled = changesHandled + 1;
         } catch(error) {
           logger.log('error', `[${change.library}:${change.recordId}]`, error.message, error);
           changesErrored = changesErrored + 1;
-          //console.error(error);
         }
       }
     }
