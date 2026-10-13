@@ -19,3 +19,6 @@ run.sh
 .nyc_output
 coverage
 .zoo
+# private scratch workspace (nested repo) + issue tools root
+workspace/
+.issues/
