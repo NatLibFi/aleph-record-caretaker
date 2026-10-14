@@ -14,7 +14,7 @@
 * limitations under the License.
 **/
 
-// running this requires at least node 7.10.0
+// running this requires at least node 18
 /* eslint no-console: 0 */
 
 
