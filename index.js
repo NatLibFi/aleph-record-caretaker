@@ -26,7 +26,7 @@ const AlephFindService = require('./lib/aleph-find-service');
 const MelindaRecordService = require('./lib/melinda-record-service');
 const BibRecordSyncService = require('./lib/bib-record-sync');
 const AuthRecordSyncService = require('./lib/auth-record-sync');
-const {Punctuation} = require('@natlibfi/melinda-marc-record-utils');
+const {Punctuation} = require('./lib/melinda-marc-record-utils');
 const utils = require('./lib/utils');
 
 process.on('uncaughtException', handleException);
