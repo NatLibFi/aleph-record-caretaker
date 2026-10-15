@@ -1,4 +1,4 @@
-# A service that applies Melinda-specific conversions when records change in Aleph [![NPM Version](https://img.shields.io/npm/v/@natlibfi/aleph-record-caretaker.svg)](https://npmjs.org/package/aleph-record-caretaker) [![Build Status](https://travis-ci.org/NatLibFi/aleph-record-caretaker.svg)](https://travis-ci.org/NatLibFi/aleph-record-caretaker)
+# A service that applies Melinda-specific conversions when records change in Aleph
 
 
 Note: this README.md is partly outdated for version > 2.0.0
@@ -60,22 +60,28 @@ The following environment variables are used to configure the system:
 | Z115_BASE | | Z115 base for polling | USR00 |
 | CURSOR_FILE | | file for saving the polling cursors | .aleph-changelistener-cursors.json |
 | Z106_STASH_PREFIX | | file for saving intermediate info about Z106 | .z106_stash |
+| CHANGES_QUEUE_FILE | | file for saving the changes queue | .aleph-changelistener-changesqueue |
+| DEBUG_SQL | | print SQL executed against the Oracle database | false |
 | POLL_INTERVAL_MS | | wait time between pollings | 5000 |
-| ORACLE_USER | x | oracle username | -
-| ORACLE_PASS | x | oracle password | -
-| ORACLE_CONNECT_STRING | x | oracle connection string | -
-| X_SERVER | x | Aleph X-server url | -
-| ALEPH_CARETAKER_USER | x | Aleph username | -
-| ALEPH_CARETAKER_PASS | x | Aleph password | -
-| MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API
-| NOOP |  | run without making changes to database | 0
-| NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0
+| ORACLE_USER | x | oracle username | - |
+| ORACLE_PASS | x | oracle password | - |
+| ORACLE_CONNECT_STRING | x | oracle connection string | - |
+| X_SERVER | x | Aleph X-server url | - |
+| ALEPH_CARETAKER_USER | x | Aleph username | - |
+| ALEPH_CARETAKER_PASS | x | Aleph password | - |
+| MELINDA_API | | melinda api endpoint | http://libtest1.csc.fi:8992/API |
+| NOOP | | run without making changes to database | 0 |
+| NOOP_BIBCHANGE | | run without making bib change triggered changes to database | 0 |
 | ONLINE | | times to run the service | '00:00-21:55, 22:30-24:00' |
-| TNS_ADMIN | | Path to Oracle configuration files |  |
+| TNS_ADMIN | | Path to Oracle configuration files | |
 
 Since the Z106 resolution is only 60 seconds in Aleph, the changes that have already been handled are saved so that nothing is handled multiple times.
 
 The ORACLE_CONNECT_STRING must match the connection string in the tnsnames.ora file. With above tnsnames.ora it should be "tunnel".
+
+## Aleph change listener
+
+Record change polling is implemented in the internal module [`lib/aleph-change-listener`](lib/aleph-change-listener), which listens for record changes in Aleph ILS by polling the Z106 (bibliographic changes) and Z115 (user changes) tables through an Oracle DB connection. It is part of this package and is started by [`index.js`](index.js) whenever the service is online.
 
 ## License and copyright
 
