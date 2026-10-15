@@ -1,0 +1,74 @@
+# Melinda node tests and webhook deployment to openshift
+name: Melinda-node-tests-and-webhook
+
+on: push
+
+jobs:
+  build-node-versions:
+    name: Node version matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [24.x, 26.x]
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v6
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+      env:
+        NPM_CONFIG_IGNORE_SCRIPTS: true
+    - run: npm i
+    - run: npm test
+    - run: npm run build --if-present
+
+  njsscan:
+    name: Njsscan-check
+    runs-on: ubuntu-latest
+    container: node:24
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v6
+    - name: nodejsscan scan
+      id: njsscan
+      uses: ajinabraham/njsscan-action@master
+      with:
+        args: '.'
+
+  license-scan:
+    name: License compliance check
+    runs-on: ubuntu-latest
+    container: node:24
+    steps:
+      - uses: actions/checkout@v6
+      - uses: mikaelvesavuori/license-compliance-action@v1.0.3
+        with:
+          exclude_pattern: /^@natlibfi/
+
+  openshift-webhook:
+    name: OpenShift webhook for image builder
+    needs: [build-node-versions, njsscan]
+    if: vars.WEBHOOK_READY == 'true'
+    runs-on: ubuntu-latest
+    container: node:24
+    steps:
+      - name: Test webhook from test
+        uses: joelwmale/webhook-action@master
+        if: github.ref == 'refs/heads/test'
+        with:
+          url: ${{ secrets.WEBHOOK_URL_TEST_FROM_TEST }}
+          body: '{}'
+      - name: Prod webhook from main
+        uses: joelwmale/webhook-action@master
+        if: github.ref == 'refs/heads/main'
+        with:
+          url: ${{ secrets.WEBHOOK_URL_PROD_FROM_MAIN }}
+          body: '{}'
+      - name: Test webhook from main
+        uses: joelwmale/webhook-action@master
+        if: github.ref == 'refs/heads/main'
+        with:
+          url: ${{ secrets.WEBHOOK_URL_TEST_FROM_MAIN }}
+          body: '{}'
