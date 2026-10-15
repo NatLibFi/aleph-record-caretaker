@@ -44,7 +44,6 @@
     "@natlibfi/marc-record-serializers": "^11.0.5",
     "@natlibfi/marc-record-validators-melinda": "^13.0.5",
     "@natlibfi/melinda-api-client": "^2.0.0",
-    "@natlibfi/melinda-marc-record-utils": "^1.2.1",
     "debug": "^4.4.3",
     "lodash": "^4.18.1",
     "moment": "^2.31.0",

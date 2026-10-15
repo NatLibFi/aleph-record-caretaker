@@ -26,6 +26,15 @@ module.exports = [
     },
   },
   {
+    // Vendored from @natlibfi/melinda-marc-record-utils — keep the upstream
+    // diff minimal, so relax the size limits that upstream style trips.
+    files: ['lib/melinda-marc-record-utils/**'],
+    rules: {
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+    },
+  },
+  {
     // Mocha spec files
     files: ['**/*.spec.js'],
     languageOptions: {
