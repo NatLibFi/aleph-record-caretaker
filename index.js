@@ -56,7 +56,9 @@ async function run() {
   const NOOP_BIBCHANGE = utils.readEnvironmentVariable('NOOP_BIBCHANGE', '0');
   const noOperationBibChange = (NOOP !== '0' || NOOP_BIBCHANGE !== '0') ? true : false;
   
-  const {BibRules: bibRules, AuthRules: authRules} = Punctuation;  
+  // NOTE: we do not use bibRules from melinda-marc-record-utils/Punctuation 
+  //const {BibRules: bibRules, AuthRules: authRules} = Punctuation;  
+  const {AuthRules: authRules} = Punctuation;  
   
   const baseMap = {
     'FI-ASTERI-S': 'FIN10',
@@ -77,8 +79,7 @@ async function run() {
     urnBaseMap,
     urnResolverPrefix,
     logger,
-    punctuationRulesForAuthRecord: authRules,
-    punctuationRulesForBibRecord: bibRules
+    punctuationRulesForAuthRecord: authRules
   };
   
   const bibSyncServiceOptions = {
@@ -87,7 +88,6 @@ async function run() {
     urnBaseMap,
     urnResolverPrefix,
     logger,
-    punctuationRulesForBibRecord: bibRules
   };
   
   const options = {
